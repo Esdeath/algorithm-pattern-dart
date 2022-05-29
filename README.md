@@ -6,7 +6,7 @@
 
 ## 在线文档
 
-在线文档 Gitbook：[算法模板 🔥](https://greyireland.gitbook.io/algorithm-pattern/)
+在线文档 Gitbook：[算法模板 🔥](https://ayaseeri.gitbook.io/algorithm-pattern-dart/)
 
 ## 核心内容
 
