@@ -94,6 +94,16 @@ void dfs(List<int> nums,int index,List<int> temp ,List<List<int>> results) {
    temp.removeLast();
    dfs(nums,index+1,temp,results);
 }
+
+//利用回溯方法
+void dfs2(List<int> nums,int index,List<int> temp ,List<List<int>> results) {
+   results.add(List.from(temp)); 
+   for(var i = index;i < nums.length;i++){
+     temp.add(nums[i]);
+     dfs2(nums,i+1,temp,results);
+     temp.removeLast();
+   }
+}
 ```
 
 说明：后面会深入讲解几个典型的回溯算法问题，如果当前不太了解可以暂时先跳过
