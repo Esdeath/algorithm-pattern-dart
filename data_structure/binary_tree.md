@@ -5,7 +5,9 @@
 ### 二叉树遍历
 
 **前序遍历**：**先访问根节点**，再前序遍历左子树，再前序遍历右子树
+
 **中序遍历**：先中序遍历左子树，**再访问根节点**，再中序遍历右子树
+
 **后序遍历**：先后序遍历左子树，再后序遍历右子树，**再访问根节点**
 
 注意点
@@ -13,344 +15,126 @@
 - 以根访问顺序决定是什么遍历
 - 左子树都是优先右子树
 
-#### 前序递归
 
-```go
-func preorderTraversal(root *TreeNode)  {
-    if root==nil{
-        return
-    }
-    // 先访问根再访问左右
-    fmt.Println(root.Val)
-    preorderTraversal(root.Left)
-    preorderTraversal(root.Right)
+```dart
+//二叉树的数据结构
+class TreeNode {
+  int? val;
+  TreeNode? left;
+  TreeNode? right;
+}
+```
+
+#### 递归
+
+```dart
+void preorderDFS(TreeNode? root) {
+  if (root == null) {
+    return;
+  }
+  //前序遍历---输出放在前面 
+  //print('${root.val}');
+  preorderDFS(root.left);
+  //中序遍历---输出放在中间 
+  //print('${root.val}');
+  preorderDFS(root.right);
+  //后续遍历---输出放在后面 
+  //print('${root.val}');
 }
 ```
 
 #### 前序非递归
 
-```go
-// V3：通过非递归遍历
-func preorderTraversal(root *TreeNode) []int {
-    // 非递归
-    if root == nil{
-        return nil
-    }
-    result:=make([]int,0)
-    stack:=make([]*TreeNode,0)
+```dart
+List<TreeNode?> preordeerTravesal(TreeNode? root) {
+  if (root == null) {
+    return [];
+  }
+  List<TreeNode?> results = [];
+  List<TreeNode?> stack = [];
 
-    for root!=nil || len(stack)!=0{
-        for root !=nil{
-            // 前序遍历，所以先保存结果
-            result=append(result,root.Val)
-            stack=append(stack,root)
-            root=root.Left
-        }
-        // pop
-        node:=stack[len(stack)-1]
-        stack=stack[:len(stack)-1]
-        root=node.Right
+  TreeNode? node = root;
+
+  while (stack.isNotEmpty || node != null) {
+    //把最左边的一排数字加入 栈中
+    while (node != null) {
+      stack.add(node);
+      results.add(node);
+      node = node.left;
     }
-    return result
+    //移除栈顶元素
+    node = stack.removeLast();
+    //访问栈顶元素的右子树
+    node = node?.right;
+  }
+
+  return results;
 }
 ```
 
 #### 中序非递归
 
 ```go
-// 思路：通过stack 保存已经访问的元素，用于原路返回
-func inorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    if root == nil {
-        return result
+
+List<TreeNode?> inordeerTravesal(TreeNode? root) {
+  if (root == null) {
+    return [];
+  }
+  List<TreeNode?> results = [];
+  List<TreeNode?> stack = [];
+
+  TreeNode? node = root;
+
+  while (stack.isNotEmpty || node != null) {
+    while (node != null) {
+      stack.add(node);
+      node = node.left;
     }
-    stack := make([]*TreeNode, 0)
-    for len(stack) > 0 || root != nil {
-        for root != nil {
-            stack = append(stack, root)
-            root = root.Left // 一直向左
-        }
-        // 弹出
-        val := stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        result = append(result, val.Val)
-        root = val.Right
-    }
-    return result
+
+    node = stack.removeLast();
+    results.add(node);//这个放置的地方和前序遍历进行比较
+    node = node?.right;
+  }
+
+  return results;
 }
+
 ```
 
 #### 后序非递归
-
-```go
-func postorderTraversal(root *TreeNode) []int {
-	// 通过lastVisit标识右子节点是否已经弹出
-	if root == nil {
-		return nil
-	}
-	result := make([]int, 0)
-	stack := make([]*TreeNode, 0)
-	var lastVisit *TreeNode
-	for root != nil || len(stack) != 0 {
-		for root != nil {
-			stack = append(stack, root)
-			root = root.Left
-		}
-		// 这里先看看，先不弹出
-		node:= stack[len(stack)-1]
-		// 根节点必须在右节点弹出之后，再弹出
-		if node.Right == nil || node.Right == lastVisit {
-			stack = stack[:len(stack)-1] // pop
-			result = append(result, node.Val)
-			// 标记当前这个节点已经弹出过
-			lastVisit = node
-		} else {
-			root = node.Right
-		}
-	}
-	return result
+后序遍历其实就是将前序遍历反转就行了。
+```dart
+List<TreeNode?> lastorderTravesal(TreeNode? root) {
+  return preordeerTravesal(root).reversed.toList();
 }
 ```
 
-注意点
-
-- 核心就是：根节点必须在右节点弹出之后，再弹出
-
-#### DFS 深度搜索-从上到下
-
-```go
-type TreeNode struct {
-    Val   int
-    Left  *TreeNode
-    Right *TreeNode
-}
-
-func preorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    dfs(root, &result)
-    return result
-}
-
-// V1：深度遍历，结果指针作为参数传入到函数内部
-func dfs(root *TreeNode, result *[]int) {
-    if root == nil {
-        return
+### 二叉树的层次遍历(BFS)
+```dart
+void bfs(TreeNode? root){
+  if(root == null) {
+    return;
+  }
+  
+  List<TreeNode> queue = [];
+  queue.add(root);
+  
+  while(queue.isNotEmpty) {
+    var length = queue.length;
+    //一层一层的移除元素
+    for(var i = 0;i < length; i++) {
+      var node = queue.removeLast();
+      if(node.left != null) {
+        queue.add(node.left!);
+      }
+      if(node.right != null) {
+        queue.add(node.right!);
+      }
     }
-    *result = append(*result, root.Val)
-    dfs(root.Left, result)
-    dfs(root.Right, result)
+  }
 }
+
 ```
-
-#### DFS 深度搜索-从下向上（分治法）
-
-```go
-// V2：通过分治法遍历
-func preorderTraversal(root *TreeNode) []int {
-    result := divideAndConquer(root)
-    return result
-}
-func divideAndConquer(root *TreeNode) []int {
-    result := make([]int, 0)
-    // 返回条件(null & leaf)
-    if root == nil {
-        return result
-    }
-    // 分治(Divide)
-    left := divideAndConquer(root.Left)
-    right := divideAndConquer(root.Right)
-    // 合并结果(Conquer)
-    result = append(result, root.Val)
-    result = append(result, left...)
-    result = append(result, right...)
-    return result
-}
-```
-
-注意点：
-
-> DFS 深度搜索（从上到下） 和分治法区别：前者一般将最终结果通过指针参数传入，后者一般递归返回结果最后合并
-
-#### BFS 层次遍历
-
-```go
-func levelOrder(root *TreeNode) [][]int {
-    // 通过上一层的长度确定下一层的元素
-    result := make([][]int, 0)
-    if root == nil {
-        return result
-    }
-    queue := make([]*TreeNode, 0)
-    queue = append(queue, root)
-    for len(queue) > 0 {
-        list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-        l := len(queue)
-        for i := 0; i < l; i++ {
-            // 出队列
-            level := queue[0]
-            queue = queue[1:]
-            list = append(list, level.Val)
-            if level.Left != nil {
-                queue = append(queue, level.Left)
-            }
-            if level.Right != nil {
-                queue = append(queue, level.Right)
-            }
-        }
-        result = append(result, list)
-    }
-    return result
-}
-```
-
-### 分治法应用
-
-先分别处理局部，再合并结果
-
-适用场景
-
-- 快速排序
-- 归并排序
-- 二叉树相关问题
-
-分治法模板
-
-- 递归返回条件
-- 分段处理
-- 合并结果
-
-```go
-func traversal(root *TreeNode) ResultType  {
-    // nil or leaf
-    if root == nil {
-        // do something and return
-    }
-
-    // Divide
-    ResultType left = traversal(root.Left)
-    ResultType right = traversal(root.Right)
-
-    // Conquer
-    ResultType result = Merge from left and right
-
-    return result
-}
-```
-
-#### 典型示例
-
-```go
-// V2：通过分治法遍历二叉树
-func preorderTraversal(root *TreeNode) []int {
-    result := divideAndConquer(root)
-    return result
-}
-func divideAndConquer(root *TreeNode) []int {
-    result := make([]int, 0)
-    // 返回条件(null & leaf)
-    if root == nil {
-        return result
-    }
-    // 分治(Divide)
-    left := divideAndConquer(root.Left)
-    right := divideAndConquer(root.Right)
-    // 合并结果(Conquer)
-    result = append(result, root.Val)
-    result = append(result, left...)
-    result = append(result, right...)
-    return result
-}
-```
-
-#### 归并排序  
-
-```go
-func MergeSort(nums []int) []int {
-    return mergeSort(nums)
-}
-func mergeSort(nums []int) []int {
-    if len(nums) <= 1 {
-        return nums
-    }
-    // 分治法：divide 分为两段
-    mid := len(nums) / 2
-    left := mergeSort(nums[:mid])
-    right := mergeSort(nums[mid:])
-    // 合并两段数据
-    result := merge(left, right)
-    return result
-}
-func merge(left, right []int) (result []int) {
-    // 两边数组合并游标
-    l := 0
-    r := 0
-    // 注意不能越界
-    for l < len(left) && r < len(right) {
-        // 谁小合并谁
-        if left[l] > right[r] {
-            result = append(result, right[r])
-            r++
-        } else {
-            result = append(result, left[l])
-            l++
-        }
-    }
-    // 剩余部分合并
-    result = append(result, left[l:]...)
-    result = append(result, right[r:]...)
-    return
-}
-```
-
-注意点
-
-> 递归需要返回结果用于合并
-
-#### 快速排序  
-
-```go
-func QuickSort(nums []int) []int {
-	// 思路：把一个数组分为左右两段，左段小于右段，类似分治法没有合并过程
-	quickSort(nums, 0, len(nums)-1)
-	return nums
-
-}
-// 原地交换，所以传入交换索引
-func quickSort(nums []int, start, end int) {
-	if start < end {
-        // 分治法：divide
-		pivot := partition(nums, start, end)
-		quickSort(nums, 0, pivot-1)
-		quickSort(nums, pivot+1, end)
-	}
-}
-// 分区
-func partition(nums []int, start, end int) int {
-	p := nums[end]
-	i := start
-	for j := start; j < end; j++ {
-		if nums[j] < p {
-			swap(nums, i, j)
-			i++
-		}
-	}
-    // 把中间的值换为用于比较的基准值
-	swap(nums, i, end)
-	return i
-}
-func swap(nums []int, i, j int) {
-	t := nums[i]
-	nums[i] = nums[j]
-	nums[j] = t
-}
-```
-
-注意点：
-
-> 快排由于是原地交换所以没有合并过程
-> 传入的索引是存在的索引（如：0、length-1 等），越界可能导致崩溃
 
 常见题目示例
 
@@ -360,24 +144,33 @@ func swap(nums []int, i, j int) {
 
 > 给定一个二叉树，找出其最大深度。
 
-思路：分治法
+思路：典型的层次遍历的题型
 
-```go
-func maxDepth(root *TreeNode) int {
-    // 返回条件处理
-    if root == nil {
-        return 0
+```dart 
+int maxDepth(TreeNode? root){
+  if(root == null) {
+    return;
+  }
+  
+  List<TreeNode> queue = [];
+  queue.add(root);
+  var result = 0;
+  while(queue.isNotEmpty) {
+    var length = queue.length;
+    for(var i = 0;i < length; i++) {
+      var node = queue.removeLast();
+      if(node.left != null) {
+        queue.add(node.left!);
+      }
+      if(node.right != null) {
+        queue.add(node.right!);
+      }
     }
-    // divide：分左右子树分别计算
-    left := maxDepth(root.Left)
-    right := maxDepth(root.Right)
-
-    // conquer：合并左右子树结果
-    if left > right {
-        return left + 1
-    }
-    return right + 1
+    result += 1
+  }
+  return result;
 }
+
 ```
 
 #### balanced-binary-tree
