@@ -1,6 +1,6 @@
 # 算法模板
 
-leetcode暂时不支持`dart`语言。不过已`flutter`发展趋势，以后肯定会有的。所以现在可以用[dartpad](https://dartpad.dev/)进行在线调试。
+leetcode暂时不支持`dart`语言。不过以`flutter`发展趋势，以后肯定会支持的。所以现在可以用[dartpad](https://dartpad.dev/)进行在线调试。
 
 **惨痛的经历写在最前面：别想着走捷径**
 
