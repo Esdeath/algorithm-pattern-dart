@@ -183,35 +183,22 @@ int maxDepth(TreeNode? root){
 因为需要返回是否平衡及高度，要么返回两个数据，要么合并两个数据，
 所以用-1 表示不平衡，>0 表示树高度（二义性：一个变量有两种含义）。
 
-```go
-func isBalanced(root *TreeNode) bool {
-    if maxDepth(root) == -1 {
-        return false
-    }
-    return true
+```dart
+bool isBalance(TreeNode? root){
+  if(root == null) {
+    return true;
+  }
+  return isBalance(root.left) && isBalance(root.right) && ((height(root.left) - height(root.right).abs()) <=1);
 }
-func maxDepth(root *TreeNode) int {
-    // check
-    if root == nil {
-        return 0
-    }
-    left := maxDepth(root.Left)
-    right := maxDepth(root.Right)
+int height(TreeNode? root){
+  if(root == null){
+    return 0;
+  }
+  int maxNumber = max( height(root.left) ,height(root.right)) + 1;
+  return maxNumber;
+} 
 
-    // 为什么返回-1呢？（变量具有二义性）
-    if left == -1 || right == -1 || left-right > 1 || right-left > 1 {
-        return -1
-    }
-    if left > right {
-        return left + 1
-    }
-    return right + 1
-}
 ```
-
-注意
-
-> 一般工程中，结果通过两个变量来返回，不建议用一个变量表示两种含义
 
 #### binary-tree-maximum-path-sum
 
