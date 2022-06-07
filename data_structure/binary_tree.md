@@ -123,7 +123,7 @@ void bfs(TreeNode? root){
     var length = queue.length;
     //一层一层的移除元素
     for(var i = 0;i < length; i++) {
-      var node = queue.removeLast();
+      var node = queue.removeAt(0);
       if(node.left != null) {
         queue.add(node.left!);
       }
@@ -208,45 +208,23 @@ int height(TreeNode? root){
 
 思路：分治法，分为三种情况：左子树最大路径和最大，右子树最大路径和最大，左右子树最大加根节点最大，需要保存两个变量：一个保存子树最大路径和，一个保存左右加根节点和，然后比较这个两个变量选择最大值即可
 
-```go
-type ResultType struct {
-    SinglePath int // 保存单边最大值
-    MaxPath int // 保存最大值（单边或者两个单边+根的值）
-}
-func maxPathSum(root *TreeNode) int {
-    result := helper(root)
-    return result.MaxPath
-}
-func helper(root *TreeNode) ResultType {
-    // check
-    if root == nil {
-        return ResultType{
-            SinglePath: 0,
-            MaxPath: -(1 << 31),
-        }
-    }
-    // Divide
-    left := helper(root.Left)
-    right := helper(root.Right)
+```dart
+class Solution {
+  int ret = -1000000;
+  int maxPathSum(TreeNode? root) {
+    helper(root);
+    return ret;
+  }
 
-    // Conquer
-    result := ResultType{}
-    // 求单边最大值
-    if left.SinglePath > right.SinglePath {
-        result.SinglePath = max(left.SinglePath + root.Val, 0)
-    } else {
-        result.SinglePath = max(right.SinglePath + root.Val, 0)
+  int helper(TreeNode? node) {
+    if (node == null) {
+      return 0;
     }
-    // 求两边加根最大值
-    maxPath := max(right.MaxPath, left.MaxPath)
-    result.MaxPath = max(maxPath,left.SinglePath+right.SinglePath+root.Val)
-    return result
-}
-func max(a,b int) int {
-    if a > b {
-        return a
-    }
-    return b
+    int left = max(0, helper(node.left));
+    int right = max(0, helper(node.right));
+    ret = max(ret, node.val! + left + right);
+    return max(left, right) + node.val!;
+  }
 }
 ```
 
@@ -259,33 +237,27 @@ func max(a,b int) int {
 思路：分治法，有左子树的公共祖先或者有右子树的公共祖先，就返回子树的祖先，否则返回根节点
 
 ```go
-func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-    // check
-    if root == nil {
-        return root
+  TreeNode? lowestCommonAncestor(TreeNode? root, TreeNode? p, TreeNode? q) {
+    if (root == null) {
+      return root;
     }
-    // 相等 直接返回root节点即可
-    if root == p || root == q {
-        return root
+    if (root == p || root == q) {
+      return root;
     }
-    // Divide
-    left := lowestCommonAncestor(root.Left, p, q)
-    right := lowestCommonAncestor(root.Right, p, q)
 
-
-    // Conquer
-    // 左右两边都不为空，则根节点为祖先
-    if left != nil && right != nil {
-        return root
+    TreeNode? left = lowestCommonAncestor(root.left, p, q);
+    TreeNode? right = lowestCommonAncestor(root.right, p, q);
+    if (left != null && right != null) {
+      return root;
     }
-    if left != nil {
-        return left
+    if (left != null) {
+      return left;
     }
-    if right != nil {
-        return right
+    if (right != null) {
+      return right;
     }
-    return nil
-}
+    return null;
+  }
 ```
 
 ### BFS 层次应用
@@ -298,35 +270,31 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 
 思路：用一个队列记录一层的元素，然后扫描这一层元素添加下一层元素到队列（一个数进去出来一次，所以复杂度 O(logN)）
 
-```go
-func levelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	for len(queue) > 0 {
-		list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-            // 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		result = append(result, list)
-	}
-	return result
-}
+```dart
+  List<List<int>> levelOrder(TreeNode? root) {
+    List<List<int>> results = [[]];
+    if (root == null) {
+      return results;
+    }
+    List<TreeNode> queue = [];
+    queue.add(root);
+    while (queue.isNotEmpty) {
+      int length = queue.length;
+      List<int> temp = [];
+      for (var i = 0; i < length; i++) {
+        TreeNode node = queue.removeAt(0);
+        temp.add(node.val!);
+        if (node.left != null) {
+          queue.add(node.left!);
+        }
+        if (node.right != null) {
+          queue.add(node.right!);
+        }
+      }
+      results.add(temp);
+    }
+    return results;
+  }
 ```
 
 #### binary-tree-level-order-traversal-ii
@@ -337,46 +305,31 @@ func levelOrder(root *TreeNode) [][]int {
 
 思路：在层级遍历的基础上，翻转一下结果即可
 
-```go
-func levelOrderBottom(root *TreeNode) [][]int {
-    result := levelOrder(root)
-    // 翻转结果
-    reverse(result)
-    return result
-}
-func reverse(nums [][]int) {
-	for i, j := 0, len(nums)-1; i < j; i, j = i+1, j-1 {
-		nums[i], nums[j] = nums[j], nums[i]
-	}
-}
-func levelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	for len(queue) > 0 {
-		list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-            // 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		result = append(result, list)
-	}
-	return result
-}
+```dart
+  List<List<int>> levelOrderBottom(TreeNode? root) {
+    List<List<int>> results = [[]];
+    if (root == null) {
+      return results;
+    }
+    List<TreeNode> queue = [];
+    queue.add(root);
+    while (queue.isNotEmpty) {
+      int length = queue.length;
+      List<int> temp = [];
+      for (var i = 0; i < length; i++) {
+        TreeNode node = queue.removeAt(0);
+        temp.add(node.val!);
+        if (node.left != null) {
+          queue.add(node.left!);
+        }
+        if (node.right != null) {
+          queue.add(node.right!);
+        }
+      }
+      results.add(temp);
+    }
+    return results.reversed.toList();
+  }
 ```
 
 #### binary-tree-zigzag-level-order-traversal
@@ -385,44 +338,39 @@ func levelOrder(root *TreeNode) [][]int {
 
 > 给定一个二叉树，返回其节点值的锯齿形层次遍历。Z 字形遍历
 
-```go
-func zigzagLevelOrder(root *TreeNode) [][]int {
-	result := make([][]int, 0)
-	if root == nil {
-		return result
-	}
-	queue := make([]*TreeNode, 0)
-	queue = append(queue, root)
-	toggle := false
-	for len(queue) > 0 {
-		list := make([]int, 0)
-		// 记录当前层有多少元素（遍历当前层，再添加下一层）
-		l := len(queue)
-		for i := 0; i < l; i++ {
-			// 出队列
-			level := queue[0]
-			queue = queue[1:]
-			list = append(list, level.Val)
-			if level.Left != nil {
-				queue = append(queue, level.Left)
-			}
-			if level.Right != nil {
-				queue = append(queue, level.Right)
-			}
-		}
-		if toggle {
-			reverse(list)
-		}
-		result = append(result, list)
-		toggle = !toggle
-	}
-	return result
-}
-func reverse(nums []int) {
-	for i := 0; i < len(nums)/2; i++ {
-		nums[i], nums[len(nums)-1-i] = nums[len(nums)-1-i], nums[i]
-	}
-}
+```dart
+  List<List<int>> levelOrder(TreeNode? root) {
+    List<List<int>> results = [[]];
+    if (root == null) {
+      return results;
+    }
+    List<TreeNode> queue = [];
+    queue.add(root);
+    while (queue.isNotEmpty) {
+      int length = queue.length;
+      List<int> temp = [];
+      for (var i = 0; i < length; i++) {
+        TreeNode node = queue.removeAt(0);
+        temp.add(node.val!);
+        if (node.left != null) {
+          queue.add(node.left!);
+        }
+        if (node.right != null) {
+          queue.add(node.right!);
+        }
+      }
+      results.add(temp);
+    }
+    List<List<int>> temp = [[]];
+    for (var i = 0; i < results.length; i++) {
+      if (i % 2 == 0) {
+        temp.add(results[i]);
+      } else {
+        temp.add(results[i].reversed.toList());
+      }
+    }
+    return temp;
+  }
 ```
 
 ### 二叉搜索树应用
@@ -433,91 +381,34 @@ func reverse(nums []int) {
 
 > 给定一个二叉树，判断其是否是一个有效的二叉搜索树。
 
-思路 1：中序遍历，检查结果列表是否已经有序
+中序遍历，检查结果列表是否已经有序
 
-思路 2：分治法，判断左 MAX < 根 < 右 MIN
+```dart
+class Solution {
+  int ret = -100000000000;//取一个最小整数
+  bool result = true;
 
-```go
-// v1
-func isValidBST(root *TreeNode) bool {
-    result := make([]int, 0)
-    inOrder(root, &result)
-    // check order
-    for i := 0; i < len(result) - 1; i++{
-        if result[i] >= result[i+1] {
-            return false
-        }
+  bool isValidBST(TreeNode? root) {
+    dfs(root);
+    return result;
+  }
+
+  void dfs(TreeNode? root) {
+    if (root == null) {
+      return;
     }
-    return true
-}
-
-func inOrder(root *TreeNode, result *[]int)  {
-    if root == nil{
-        return
+    dfs(root.left);
+    if (root.val! <= ret) {
+      result = false;
+      return;
     }
-    inOrder(root.Left, result)
-    *result = append(*result, root.Val)
-    inOrder(root.Right, result)
+    ret = root.val!;
+    dfs(root.right);
+  }
 }
-
 
 ```
 
-```go
-// v2分治法
-type ResultType struct {
-	IsValid bool
-    // 记录左右两边最大最小值，和根节点进行比较
-	Max     *TreeNode
-	Min     *TreeNode
-}
-
-func isValidBST2(root *TreeNode) bool {
-	result := helper(root)
-	return result.IsValid
-}
-func helper(root *TreeNode) ResultType {
-	result := ResultType{}
-	// check
-	if root == nil {
-		result.IsValid = true
-		return result
-	}
-
-	left := helper(root.Left)
-	right := helper(root.Right)
-
-	if !left.IsValid || !right.IsValid {
-		result.IsValid = false
-		return result
-	}
-	if left.Max != nil && left.Max.Val >= root.Val {
-		result.IsValid = false
-		return result
-	}
-	if right.Min != nil && right.Min.Val <= root.Val {
-		result.IsValid = false
-		return result
-	}
-
-	result.IsValid = true
-    // 如果左边还有更小的3，就用更小的节点，不用4
-    //  5
-    // / \
-    // 1   4
-    //      / \
-    //     3   6
-	result.Min = root
-	if left.Min != nil {
-		result.Min = left.Min
-	}
-	result.Max = root
-	if right.Max != nil {
-		result.Max = right.Max
-	}
-	return result
-}
-```
 
 #### insert-into-a-binary-search-tree
 
@@ -527,20 +418,20 @@ func helper(root *TreeNode) ResultType {
 
 思路：找到最后一个叶子节点满足插入条件即可
 
-```go
+```dart
 // DFS查找插入位置
-func insertIntoBST(root *TreeNode, val int) *TreeNode {
-    if root == nil {
-        root = &TreeNode{Val: val}
-        return root
+  TreeNode? insertIntoBST(TreeNode? root, int val) {
+    if (root == null) {
+      TreeNode? node = TreeNode()..val = val;
+      return node;
     }
-    if root.Val > val {
-        root.Left = insertIntoBST(root.Left, val)
+    if (root.val! > val) {
+      root.left = insertIntoBST(root.left, val);
     } else {
-        root.Right = insertIntoBST(root.Right, val)
+      root.right = insertIntoBST(root.right, val);
     }
-    return root
-}
+    return root;
+  }
 ```
 
 ## 总结
