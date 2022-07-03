@@ -174,41 +174,6 @@ List<int> inorderTraversal(TreeNode? root) {
   return res;
 }
 
-
-```
-
-[clone-graph](https://leetcode-cn.com/problems/clone-graph/)
-
-> 给你无向连通图中一个节点的引用，请你返回该图的深拷贝（克隆）。
-
-```go
-func cloneGraph(node *Node) *Node {
-    visited:=make(map[*Node]*Node)
-    return clone(node,visited)
-}
-// 1 2
-// 4 3
-// 递归克隆，传入已经访问过的元素作为过滤条件
-func clone(node *Node,visited map[*Node]*Node)*Node{
-    if node==nil{
-        return nil
-    }
-    // 已经访问过直接返回
-    if v,ok:=visited[node];ok{
-        return v
-    }
-    newNode:=&Node{
-        Val:node.Val,
-        Neighbors:make([]*Node,len(node.Neighbors)),
-    }
-    visited[node]=newNode
-    for i:=0;i<len(node.Neighbors);i++{
-        newNode.Neighbors[i]=clone(node.Neighbors[i],visited)
-    }
-    return newNode
-}
-```
-
 [number-of-islands](https://leetcode-cn.com/problems/number-of-islands/)
 
 > 给定一个由  '1'（陆地）和 '0'（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
