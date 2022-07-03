@@ -173,6 +173,7 @@ List<int> inorderTraversal(TreeNode? root) {
   }
   return res;
 }
+```
 
 [number-of-islands](https://leetcode-cn.com/problems/number-of-islands/)
 
@@ -180,30 +181,71 @@ List<int> inorderTraversal(TreeNode? root) {
 
 思路：通过深度搜索遍历可能性（注意标记已访问元素）
 
-```go
+```dart
+class Position {
+  int x = 0;
+  int y = 0;
+  Position(this.x, this.y);
+}
 
-func numIslands(grid [][]byte) int {
-    var count int
-    for i:=0;i<len(grid);i++{
-        for j:=0;j<len(grid[i]);j++{
-            if grid[i][j]=='1' && dfs(grid,i,j)>=1{
-                count++
-            }
-        }
+//岛屿问题
+int numIslands(List<List<String>> grid) {
+  int result = 0;
+  //初始化visited记录是否访问过
+  int row = grid.length;
+  int column = grid[0].length;
+  List<List<bool>> isVisited = List.filled(row, List.filled(column, false));
+  print(isVisited);
+  //从第一个节点开始访问
+  for (var i = 0; i < row; i++) {
+    for (var j = 0; j < column; j++) {
+      //如果没有被访问过,且为 "1"就访问
+      if (!isVisited[i][j] && grid[i][j] == "1") {
+        bfs(i, j, grid, isVisited);
+        result += 1;
+      }
     }
-    return count
+  }
+  return result;
 }
-func dfs(grid [][]byte,i,j int)int{
-    if i<0||i>=len(grid)||j<0||j>=len(grid[0]){
-        return 0
+
+
+void bfs(
+    int xPos, int yPos, List<List<String>> grid, List<List<bool>> isVisited) {
+  List<Position> queue = [];
+  queue.add(Position(xPos, yPos));
+  isVisited[xPos][yPos] = true;
+
+  //四个方向
+  List<Position> directions = [
+    Position(0, 1),
+    Position(0, -1),
+    Position(1, 0),
+    Position(-1, 0)
+  ];
+
+  while (queue.isNotEmpty) {
+    Position currentPos = queue.removeAt(0);
+    for (var i = 0; i < directions.length; i++) {
+      int x = currentPos.x + directions[0].x;
+      int y = currentPos.y + directions[0].y;
+      if (isValid(x, y, grid, isVisited)) {
+        queue.add(Position(x, y));
+        isVisited[x][y] = true;
+      }
     }
-    if grid[i][j]=='1'{
-        // 标记已经访问过(每一个点只需要访问一次)
-        grid[i][j]=0
-        return dfs(grid,i-1,j)+dfs(grid,i,j-1)+dfs(grid,i+1,j)+dfs(grid,i,j+1)+1
-    }
-    return 0
+  }
 }
+//xPos,yPosb不能越界，如果没有被访问过isVisited =false,且为 "1"就访问
+bool isValid(
+    int xPos, int yPos, List<List<String>> grid, List<List<bool>> isVisited) {
+  if (xPos < 0 || xPos >= grid.length) return false;
+  if (yPos < 0 || yPos >= grid[0].length) return false;
+  if (isVisited[xPos][yPos]) return false;
+  if (grid[xPos][yPos] == "0") return false;
+  return true;
+}
+
 ```
 
 [largest-rectangle-in-histogram](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
