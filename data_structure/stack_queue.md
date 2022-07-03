@@ -18,67 +18,33 @@
 
 思路：用两个栈实现，一个最小栈始终保证最小值在顶部
 
-```go
-type MinStack struct {
-    min []int
-    stack []int
-}
+```dart
+class MinStack {
+  List<int> stack = [];
+  List<int> minstack = [];
 
-
-/** initialize your data structure here. */
-func Constructor() MinStack {
-    return MinStack{
-        min: make([]int, 0),
-        stack: make([]int, 0),
-    }
-}
-
-
-func (this *MinStack) Push(x int)  {
-    min := this.GetMin()
-    if x < min {
-        this.min = append(this.min, x)
+  void push(int val) {
+    stack.add(val);
+    if (minstack.isEmpty) {
+      minstack.add(val);
     } else {
-        this.min = append(this.min, min)
+      minstack.add(min(minstack.last, val));
     }
-    this.stack = append(this.stack, x)
+  }
+
+  void pop() {
+    stack.removeLast();
+    minstack.removeLast();
+  }
+
+  int top() {
+    return stack.last;
+  }
+
+  int getMin() {
+    return minstack.last;
+  }
 }
-
-
-func (this *MinStack) Pop()  {
-    if len(this.stack) == 0 {
-        return
-    }
-    this.stack = this.stack[:len(this.stack)-1]
-    this.min = this.min[:len(this.min)-1]
-}
-
-
-func (this *MinStack) Top() int {
-    if len(this.stack) == 0 {
-        return 0
-    }
-    return this.stack[len(this.stack)-1]
-}
-
-
-func (this *MinStack) GetMin() int {
-    if len(this.min) == 0 {
-        return 1 << 31
-    }
-    min := this.min[len(this.min)-1]
-    return min
-}
-
-
-/**
- * Your MinStack object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Push(x);
- * obj.Pop();
- * param_3 := obj.Top();
- * param_4 := obj.GetMin();
- */
 ```
 
 [evaluate-reverse-polish-notation](https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/)
@@ -89,42 +55,36 @@ func (this *MinStack) GetMin() int {
 
 思路：通过栈保存原来的元素，遇到表达式弹出运算，再推入结果，重复这个过程
 
-```go
-func evalRPN(tokens []string) int {
-    if len(tokens)==0{
-        return 0
+```dart
+int evalRPN(List<String> tokens) {
+  List<String> stack = [];
+  
+  for(int i = 0; i < tokens.length;i++){
+    if(tokens[i] == '+' || tokens[i] == '-' || tokens[i] == '*' || tokens[i] == '/'){
+      
+      int num1 = int.parse(stack.removeLast());
+      
+      int num2 = int.parse(stack.removeLast());
+      if(tokens[i] == '+' ){
+        stack.add((num1 + num2).toString());
+      }
+       if(tokens[i] == '-' ){
+        stack.add((num2 - num1).toString());
+      }
+      if(tokens[i] == '*' ){
+          stack.add((num2 * num1).toString());
+      }
+      if(tokens[i] == '/' ){
+         stack.add((num2 ~/ num1).toString());
+      }
+      
+    } else {
+      stack.add(tokens[i]);
     }
-    stack:=make([]int,0)
-    for i:=0;i<len(tokens);i++{
-        switch tokens[i]{
-        case "+","-","*","/":
-            if len(stack)<2{
-                return -1
-            }
-            // 注意：a为被除数，b为除数
-            b:=stack[len(stack)-1]
-            a:=stack[len(stack)-2]
-            stack=stack[:len(stack)-2]
-            var result int
-            switch tokens[i]{
-            case "+":
-                result=a+b
-            case "-":
-                result=a-b
-            case "*":
-                result=a*b
-            case "/":
-                result=a/b
-            }
-            stack=append(stack,result)
-        default:
-            // 转为数字
-            val,_:=strconv.Atoi(tokens[i])
-            stack=append(stack,val)
-        }
-    }
-    return stack[0]
+  }
+  return int.parse(stack.last);
 }
+
 ```
 
 [decode-string](https://leetcode-cn.com/problems/decode-string/)
@@ -136,66 +96,44 @@ func evalRPN(tokens []string) int {
 
 思路：通过栈辅助进行操作
 
-```go
-func decodeString(s string) string {
-	if len(s) == 0 {
-		return ""
-	}
-	stack := make([]byte, 0)
-	for i := 0; i < len(s); i++ {
-		switch s[i] {
-		case ']':
-			temp := make([]byte, 0)
-			for len(stack) != 0 && stack[len(stack)-1] != '[' {
-				v := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				temp = append(temp, v)
-			}
-			// pop '['
-			stack = stack[:len(stack)-1]
-			// pop num
-			idx := 1
-			for len(stack) >= idx && stack[len(stack)-idx] >= '0' && stack[len(stack)-idx] <= '9' {
-				idx++
-			}
-            // 注意索引边界
-			num := stack[len(stack)-idx+1:]
-			stack = stack[:len(stack)-idx+1]
-			count, _ := strconv.Atoi(string(num))
-			for j := 0; j < count; j++ {
-                // 把字符正向放回到栈里面
-				for j := len(temp) - 1; j >= 0; j-- {
-					stack = append(stack, temp[j])
-				}
-			}
-		default:
-			stack = append(stack, s[i])
-
-		}
-	}
-	return string(stack)
-}
-```
-
-利用栈进行 DFS 递归搜索模板
-
-```go
-boolean DFS(int root, int target) {
-    Set<Node> visited;
-    Stack<Node> s;
-    add root to s;
-    while (s is not empty) {
-        Node cur = the top element in s;
-        return true if cur is target;
-        for (Node next : the neighbors of cur) {
-            if (next is not in visited) {
-                add next to s;
-                add next to visited;
-            }
+```dart
+String decodeString(String str) {
+  int length = str.length;
+  List<String> stackStr = [];
+  for(int i = 0 ; i < length;i++){
+    String temp = str[i];
+    if(temp == "]"){
+      //1.弹出[]里面所有字母 保存在s中
+      String strCode = '';
+      while(stackStr.isNotEmpty && stackStr.last != "[") {
+          strCode = stackStr.removeLast() + strCode;
+      }
+      //2.弹出'['
+      if(stackStr.isNotEmpty && stackStr.last == "[")stackStr.removeLast();
+      //3.弹出所有的数字 
+      String strNum = '';
+      while(stackStr.isNotEmpty) {
+        String temp = stackStr.last;
+        if (int.tryParse(temp) != null){
+          strNum = temp + strNum ;
+          stackStr.removeLast();
+        } else {
+          break;
         }
-        remove cur from s;
+      }
+      //4.将数字 * 字符串 展开，然后压入栈中
+      String strAll = '';
+      int result = int.parse(strNum);
+      for(int i = 0;i < result;i++){
+        strAll = strAll + strCode;
+      }
+      stackStr.add(strAll);
+    } else {
+      stackStr.add(temp);
     }
-    return false;
+  }
+  
+  return stackStr.join();
 }
 ```
 
@@ -203,27 +141,40 @@ boolean DFS(int root, int target) {
 
 > 给定一个二叉树，返回它的*中序*遍历。
 
-```go
-// 思路：通过stack 保存已经访问的元素，用于原路返回
-func inorderTraversal(root *TreeNode) []int {
-    result := make([]int, 0)
-    if root == nil {
-        return result
-    }
-    stack := make([]*TreeNode, 0)
-    for len(stack) > 0 || root != nil {
-        for root != nil {
-            stack = append(stack, root)
-            root = root.Left // 一直向左
-        }
-        // 弹出
-        val := stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        result = append(result, val.Val)
-        root = val.Right
-    }
-    return result
+```dart
+//递归的方式
+List<int> res = [];
+List<int> inorderTraversal(TreeNode? root) {
+  dfs(root);
+  return res;
 }
+void dfs(TreeNode? root) {
+  if (root == null) return;
+  dfs(root.left);
+  res.add(root.val!);
+  dfs(root.right);
+}
+
+//非递归的方式
+//思考一下递归的方式，首先会先调用root.left 不停的访问下去。
+//直到节点为null，这时候开始访问右边节点.访问右边节点的时候，
+//又会递归，首先访问root.left，不停的访问下去。
+List<int> inorderTraversal(TreeNode? root) {
+  List<int> res = [];
+  List<TreeNode> stackNode = [];
+  while(stackNode.isNotEmpty || root != null){
+    while(root != null){
+      stackNode.add(root);
+      root= root.left;
+    }
+    TreeNode node = stackNode.removeLast();
+    res.add(node.val!);
+    root = node.right;
+  }
+  return res;
+}
+
+
 ```
 
 [clone-graph](https://leetcode-cn.com/problems/clone-graph/)
