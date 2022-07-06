@@ -261,44 +261,25 @@ bool isValid(
 
 ![image.png](https://img.fuiboom.com/img/stack_rain2.png)
 
-```go
-func largestRectangleArea(heights []int) int {
-	if len(heights) == 0 {
-		return 0
-	}
-	stack := make([]int, 0)
-	max := 0
-	for i := 0; i <= len(heights); i++ {
-		var cur int
-		if i == len(heights) {
-			cur = 0
-		} else {
-			cur = heights[i]
-		}
-        // 当前高度小于栈，则将栈内元素都弹出计算面积
-		for len(stack) != 0 && cur <= heights[stack[len(stack)-1]] {
-			pop := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			h := heights[pop]
-            // 计算宽度
-			w := i
-			if len(stack) != 0 {
-				peek := stack[len(stack)-1]
-				w = i - peek - 1
-			}
-			max = Max(max, h*w)
-		}
-        // 记录索引即可获取对应元素
-		stack = append(stack, i)
-	}
-	return max
+```dart
+//暴力解法
+int largestRectangleArea(List<int> heights) {
+  int count = heights.length;
+
+  int result = 0;
+
+  //包含某个数的累加
+  for (var j = 0; j < count; j++) {
+    int minx = 100000000;
+
+    for (var z = j; z < count; z++) {
+      minx = min(minx, heights[z]);
+      result = max((z - j + 1) * minx, result);
+    }
+  }
+  return result;
 }
-func Max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
+
 ```
 
 ## Queue 队列
@@ -309,109 +290,78 @@ func Max(a, b int) int {
 
 > 使用栈实现队列
 
-```go
-type MyQueue struct {
-    stack []int
-    back  []int
-}
+```dart
 
-/** Initialize your data structure here. */
-func Constructor() MyQueue {
-    return MyQueue{
-        stack: make([]int, 0),
-        back:  make([]int, 0),
+class MyQueue {
+  List<int> inStack = [];
+  List<int> outStack = [];
+
+  void push(int x) {
+    inStack.add(x);
+  }
+
+  int pop() {
+    if (outStack.isNotEmpty) {
+      return outStack.removeLast();
+    } else {
+      while (inStack.isNotEmpty) {
+        outStack.add(inStack.removeLast());
+      }
+      return outStack.removeLast();
     }
-}
+  }
 
-// 1
-// 3
-// 5
-
-/** Push element x to the back of queue. */
-func (this *MyQueue) Push(x int) {
-    for len(this.back) != 0 {
-        val := this.back[len(this.back)-1]
-        this.back = this.back[:len(this.back)-1]
-        this.stack = append(this.stack, val)
+  int peek() {
+    if (outStack.isNotEmpty) {
+      return outStack.last;
+    } else {
+      while (inStack.isNotEmpty) {
+        outStack.add(inStack.removeLast());
+      }
+      return outStack.last;
     }
-    this.stack = append(this.stack, x)
-}
+  }
 
-/** Removes the element from in front of queue and returns that element. */
-func (this *MyQueue) Pop() int {
-    for len(this.stack) != 0 {
-        val := this.stack[len(this.stack)-1]
-        this.stack = this.stack[:len(this.stack)-1]
-        this.back = append(this.back, val)
-    }
-    if len(this.back) == 0 {
-        return 0
-    }
-    val := this.back[len(this.back)-1]
-    this.back = this.back[:len(this.back)-1]
-    return val
+  bool empty() {
+    return inStack.isEmpty && outStack.isEmpty;
+  }
 }
-
-/** Get the front element. */
-func (this *MyQueue) Peek() int {
-    for len(this.stack) != 0 {
-        val := this.stack[len(this.stack)-1]
-        this.stack = this.stack[:len(this.stack)-1]
-        this.back = append(this.back, val)
-    }
-    if len(this.back) == 0 {
-        return 0
-    }
-    val := this.back[len(this.back)-1]
-    return val
-}
-
-/** Returns whether the queue is empty. */
-func (this *MyQueue) Empty() bool {
-    return len(this.stack) == 0 && len(this.back) == 0
-}
-
-/**
- * Your MyQueue object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Push(x);
- * param_2 := obj.Pop();
- * param_3 := obj.Peek();
- * param_4 := obj.Empty();
- */
 ```
 
 二叉树层次遍历
 
-```go
-func levelOrder(root *TreeNode) [][]int {
-    // 通过上一层的长度确定下一层的元素
-    result := make([][]int, 0)
-    if root == nil {
-        return result
+```dart
+
+class TreeNode {
+  int? val;
+  TreeNode? left;
+  TreeNode? right;
+}
+
+List<List<int>> levelOrder(TreeNode? root) {
+  List<List<int>> result = [[]];
+  if (root == null) {
+    return result;
+  }
+  List<TreeNode> queue = [];
+  queue.add(root);
+  while (queue.isNotEmpty) {
+    int count = queue.length;
+    List<int> temp = [];
+    //一层一层的移除元素
+    for (int i = 0; i < count; i++) {
+      TreeNode node = queue.removeAt(0);
+      temp.add(node.val!);
+      if (node.left != null) {
+        queue.add(node.left!);
+      }
+      if (node.right != null) {
+        queue.add(node.right!);
+      }
     }
-    queue := make([]*TreeNode, 0)
-    queue = append(queue, root)
-    for len(queue) > 0 {
-        list := make([]int, 0)
-        // 为什么要取length？
-        // 记录当前层有多少元素（遍历当前层，再添加下一层）
-        l := len(queue)
-        for i := 0; i < l; i++ {
-            // 出队列
-            level := queue[0]
-            queue = queue[1:]
-            list = append(list, level.Val)
-            if level.Left != nil {
-                queue = append(queue, level.Left)
-            }
-            if level.Right != nil {
-                queue = append(queue, level.Right)
-            }
-        }
-        result = append(result, list)
-    }
-    return result
+    result.add(temp);
+  }
+  return result;
 }
 ```
 
@@ -420,52 +370,39 @@ func levelOrder(root *TreeNode) [][]int {
 > 给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。
 > 两个相邻元素间的距离为 1
 
-```go
-// BFS 从0进队列，弹出之后计算上下左右的结果，将上下左右重新进队列进行二层操作
-// 0 0 0 0
-// 0 x 0 0
-// x x x 0
-// 0 x 0 0
+```dart
+//多源BFS问题：
+//对于二叉树来说只有一个起点，所以二叉树在进行BFS的时候，只需要把根节点加入到queue里
+//对于图来说 有多个点可以做为起点，所以要把所有起点加入queue，并且要记录已经访问的节点
+//防止重复访问
+List<List<int>> updateMatrix(List<List<int>> mat) {
+  int row = mat.length;
+  int col = mat[0].length;
 
-// 0 0 0 0
-// 0 1 0 0
-// 1 x 1 0
-// 0 1 0 0
-
-// 0 0 0 0
-// 0 1 0 0
-// 1 2 1 0
-// 0 1 0 0
-func updateMatrix(matrix [][]int) [][]int {
-    q:=make([][]int,0)
-    for i:=0;i<len(matrix);i++{
-        for j:=0;j<len(matrix[0]);j++{
-            if matrix[i][j]==0{
-                // 进队列
-                point:=[]int{i,j}
-                q=append(q,point)
-            }else{
-                matrix[i][j]=-1
-            }
-        }
+  List<List<int>> queue = [];
+  for (int i = 0; i < row; i++) {
+    for (int j = 0; j < col; j++) {
+      if (mat[i][j] == 0) {
+        queue.add([i, j]);
+      } else {
+        mat[i][j] = -1;
+      }
     }
-    directions:=[][]int{{0,1},{0,-1},{-1,0},{1,0}}
-    for len(q)!=0{
-        // 出队列
-        point:=q[0]
-        q=q[1:]
-        for _,v:=range directions{
-            x:=point[0]+v[0]
-            y:=point[1]+v[1]
-            if x>=0&&x<len(matrix)&&y>=0&&y<len(matrix[0])&&matrix[x][y]==-1{
-                matrix[x][y]=matrix[point[0]][point[1]]+1
-                // 将当前的元素进队列，进行一次BFS
-                q=append(q,[]int{x,y})
-            }
-        }
+  }
+  List<int> xD = [1, 0, -1, 0];
+  List<int> yD = [0, 1, 0, -1];
+  while (queue.isNotEmpty) {
+    List<int> pos = queue.removeAt(0);
+    for (int i = 0; i < 4; i++) {
+      int x = pos[0] + xD[i];
+      int y = pos[1] + yD[i];
+      if (x >= 0 && x < row && y >= 0 && y < col && mat[x][y] == -1) {
+        mat[x][y] = mat[pos[0]][pos[1]] + 1;
+        queue.add([x, y]);
+      }
     }
-    return matrix
-
+  }
+  return mat;
 }
 ```
 
