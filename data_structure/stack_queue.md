@@ -178,7 +178,6 @@ List<int> inorderTraversal(TreeNode? root) {
 [number-of-islands](https://leetcode-cn.com/problems/number-of-islands/)
 
 > 给定一个由  '1'（陆地）和 '0'（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
-
 思路：通过深度搜索遍历可能性（注意标记已访问元素）
 
 ```dart
