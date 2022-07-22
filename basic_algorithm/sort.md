@@ -4,84 +4,79 @@
 
 ### 快速排序
 
-```go
-func QuickSort(nums []int) []int {
-    // 思路：把一个数组分为左右两段，左段小于右段
-    quickSort(nums, 0, len(nums)-1)
-    return nums
+```dart
 
-}
-// 原地交换，所以传入交换索引
-func quickSort(nums []int, start, end int) {
-    if start < end {
-        // 分治法：divide
-        pivot := partition(nums, start, end)
-        quickSort(nums, 0, pivot-1)
-        quickSort(nums, pivot+1, end)
+void qs(List<int> nums, int left, int right) {
+  if (left >= right) {
+    return;
+  }
+
+  int start = left;
+  int end = right;
+  int pivot = nums[end];
+
+  while (start <= end) {
+    while (start <= end && nums[start] < pivot) {
+      start++;
     }
-}
-// 分区
-func partition(nums []int, start, end int) int {
-    // 选取最后一个元素作为基准pivot
-    p := nums[end]
-    i := start
-    // 最后一个值就是基准所以不用比较
-    for j := start; j < end; j++ {
-        if nums[j] < p {
-            swap(nums, i, j)
-            i++
-        }
+    while (start <= end && nums[end] > pivot) {
+      end--;
     }
-    // 把基准值换到中间
-    swap(nums, i, end)
-    return i
+    if (start <= end) {
+      int temp = nums[start];
+      nums[start] = nums[end];
+      nums[end] = temp;
+      start++;
+      end--;
+    }
+  }
+  qs(nums, left, end);
+  qs(nums, start, right);
 }
-// 交换两个元素
-func swap(nums []int, i, j int) {
-    t := nums[i]
-    nums[i] = nums[j]
-    nums[j] = t
-}
+
 ```
 
 ### 归并排序
 
-```go
-func MergeSort(nums []int) []int {
-    return mergeSort(nums)
+```dart
+void mergeSort(List<int> list, int start, int end, List<int> temp) {
+  if (start >= end) {
+    return;
+  }
+  int mid = start + (end - start) ~/ 2;
+  mergeSort(list, start, mid, temp);
+  mergeSort(list, mid + 1, end, temp);
+  merge(list, start, end, temp);
 }
-func mergeSort(nums []int) []int {
-    if len(nums) <= 1 {
-        return nums
+
+void merge(List<int> list, int start, int end, List<int> temp) {
+  int mid = start + (end - start) ~/ 2;
+
+  int index = start;
+  int leftIndex = start;
+  int rightIndex = mid + 1;
+
+  while (leftIndex <= mid && rightIndex <= end) {
+    if (list[leftIndex] <= list[rightIndex]) {
+      temp[index++] = list[leftIndex++];
+    } else {
+      temp[index++] = list[rightIndex++];
     }
-    // 分治法：divide 分为两段
-    mid := len(nums) / 2
-    left := mergeSort(nums[:mid])
-    right := mergeSort(nums[mid:])
-    // 合并两段数据
-    result := merge(left, right)
-    return result
+  }
+
+  while (leftIndex <= mid) {
+    temp[index++] = list[leftIndex++];
+  }
+
+  while (rightIndex <= end) {
+    temp[index++] = list[rightIndex++];
+  }
+
+  for (var i = start; i <= end; i++) {
+    list[i] = temp[i];
+  }
 }
-func merge(left, right []int) (result []int) {
-    // 两边数组合并游标
-    l := 0
-    r := 0
-    // 注意不能越界
-    for l < len(left) && r < len(right) {
-        // 谁小合并谁
-        if left[l] > right[r] {
-            result = append(result, right[r])
-            r++
-        } else {
-            result = append(result, left[l])
-            l++
-        }
-    }
-    // 剩余部分合并
-    result = append(result, left[l:]...)
-    result = append(result, right[r:]...)
-    return
-}
+
 ```
 
 ### 堆排序
@@ -96,58 +91,6 @@ func merge(left, right []int) (result []int) {
 
 ![image.png](https://img.fuiboom.com/img/heap.png)
 
-核心代码
-
-```go
-package main
-
-func HeapSort(a []int) []int {
-    // 1、无序数组a
-	// 2、将无序数组a构建为一个大根堆
-	for i := len(a)/2 - 1; i >= 0; i-- {
-		sink(a, i, len(a))
-	}
-	// 3、交换a[0]和a[len(a)-1]
-	// 4、然后把前面这段数组继续下沉保持堆结构，如此循环即可
-	for i := len(a) - 1; i >= 1; i-- {
-		// 从后往前填充值
-		swap(a, 0, i)
-		// 前面的长度也减一
-		sink(a, 0, i)
-	}
-	return a
-}
-func sink(a []int, i int, length int) {
-	for {
-		// 左节点索引(从0开始，所以左节点为i*2+1)
-		l := i*2 + 1
-		// 右节点索引
-		r := i*2 + 2
-		// idx保存根、左、右三者之间较大值的索引
-		idx := i
-		// 存在左节点，左节点值较大，则取左节点
-		if l < length && a[l] > a[idx] {
-			idx = l
-		}
-		// 存在右节点，且值较大，取右节点
-		if r < length && a[r] > a[idx] {
-			idx = r
-		}
-		// 如果根节点较大，则不用下沉
-		if idx == i {
-			break
-		}
-		// 如果根节点较小，则交换值，并继续下沉
-		swap(a, i, idx)
-		// 继续下沉idx节点
-		i = idx
-	}
-}
-func swap(a []int, i, j int) {
-	a[i], a[j] = a[j], a[i]
-}
-
-```
 
 ## 参考
 
@@ -157,4 +100,4 @@ func swap(a []int, i, j int) {
 
 ## 练习
 
-- [ ] 手写快排、归并、堆排序
+- [ ] 手写快排、归并
