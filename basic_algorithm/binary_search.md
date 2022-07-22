@@ -271,47 +271,41 @@ int findMin(List<int> nums) {
 > 搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回  -1 。
 > 你可以假设数组中不存在重复的元素。
 
-```go
-func search(nums []int, target int) int {
-    // 思路：/ / 两条上升直线，四种情况判断
-    if len(nums) == 0 {
-        return -1
+```dart
+
+int search(List<int> nums, int target) {
+  int start = 0;
+  int end = nums.length - 1;
+
+  while (start + 1 < end) {
+    int mid = start + ((end - start) >> 1);
+    if (target < nums[mid]) {
+      return mid;
     }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return mid
-        }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
-        }
+    if (nums[start] < nums[mid]) {
+      if (target <= nums[mid] && target >= nums[start]) {
+        end = mid;
+      } else {
+        start = mid;
+      }
+    } else {
+      if (target <= nums[end] && target >= nums[mid]) {
+        start = mid;
+      } else {
+        end = mid;
+      }
     }
-    if nums[start] == target {
-        return start
-    } else if nums[end] == target {
-        return end
-    }
-    return -1
+  }
+  if (nums[start] == target) {
+    return start;
+  }
+  if (nums[end] == target) {
+    return end;
+  }
+  return -1;
 }
+
 ```
-
-注意点
-
-> 面试时，可以直接画图进行辅助说明，空讲很容易让大家都比较蒙圈
 
 ### [search-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
 
@@ -319,46 +313,44 @@ func search(nums []int, target int) int {
 > ( 例如，数组  [0,0,1,2,2,5,6]  可能变为  [2,5,6,0,0,1,2] )。
 > 编写一个函数来判断给定的目标值是否存在于数组中。若存在返回  true，否则返回  false。(包含重复元素)
 
-```go
-func search(nums []int, target int) bool {
-    // 思路：/ / 两条上升直线，四种情况判断，并且处理重复数字
-    if len(nums) == 0 {
-        return false
+```dart
+
+bool search(List<int> nums, int target) {
+  int start = 0;
+  int end = nums.length - 1;
+
+  while (start + 1 < end) {
+    while (start < end && nums[start] == nums[start + 1]) {
+      start++;
     }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        // 处理重复数字
-        for start < end && nums[start] == nums[start+1] {
-            start++
-        }
-        for start < end && nums[end] == nums[end-1] {
-            end--
-        }
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return true
-        }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
-        }
+    while (start < end && nums[end] == nums[end - 1]) {
+      end--;
     }
-    if nums[start] == target || nums[end] == target {
-        return true
+    int mid = start + ((end - start) >> 1);
+    if (target < nums[mid]) {
+      return true;
     }
-    return false
+    if (nums[start] < nums[mid]) {
+      if (target <= nums[mid] && target >= nums[start]) {
+        end = mid;
+      } else {
+        start = mid;
+      }
+    } else {
+      if (target <= nums[end] && target >= nums[mid]) {
+        start = mid;
+      } else {
+        end = mid;
+      }
+    }
+  }
+  if (nums[start] == target) {
+    return true;
+  }
+  if (nums[end] == target) {
+    return true;
+  }
+  return false;
 }
 ```
 
