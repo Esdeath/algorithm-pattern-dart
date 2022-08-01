@@ -29,34 +29,39 @@ void reverse(List<String> s, int start, int end) {
 
 > 给定一个整数 n，生成所有由 1 ... n 为节点所组成的二叉搜索树。
 
-```go
-func generateTrees(n int) []*TreeNode {
-    if n==0{
-        return nil
+```dart
+List<TreeNode?> generateTree(int start, int end) {
+    if (start > end) {
+        return [null];
     }
-    return generate(1,n)
+    List<TreeNode> allTrees = [];
+    // 枚举可行根节点
+    for (int i = start; i <= end; i++) {
+        // 获得所有可行的左子树集合
+        List<TreeNode?> leftTrees = generateTree(start, i - 1);
 
-}
-func generate(start,end int)[]*TreeNode{
-    if start>end{
-        return []*TreeNode{nil}
-    }
-    ans:=make([]*TreeNode,0)
-    for i:=start;i<=end;i++{
-        // 递归生成所有左右子树
-        lefts:=generate(start,i-1)
-        rights:=generate(i+1,end)
-        // 拼接左右子树后返回
-        for j:=0;j<len(lefts);j++{
-            for k:=0;k<len(rights);k++{
-                root:=&TreeNode{Val:i}
-                root.Left=lefts[j]
-                root.Right=rights[k]
-                ans=append(ans,root)
+        // 获得所有可行的右子树集合
+        List<TreeNode?> rightTrees = generateTree(i + 1, end);
+
+        // 从左子树集合中选出一棵左子树，从右子树集合中选出一棵右子树，拼接到根节点上
+        for (var left in leftTrees) {
+            for (var right in  rightTrees) {
+                TreeNode currTree =  TreeNode();
+                currTree.val = i;
+                currTree.left = left;
+                currTree.right = right;
+                allTrees.add(currTree);
             }
         }
     }
-    return ans
+    return allTrees;
+}
+
+List<TreeNode?> generateTrees(int n) {
+    if (n == 0) {
+        return [];
+    }
+    return generateTree(1, n);
 }
 ```
 
