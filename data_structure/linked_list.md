@@ -470,6 +470,31 @@ Node? copyRandomList(Node? head) {
 
 ```
 
+[swap-nodes-in-pairs](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+
+> 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。
+> **你不能只是单纯的改变节点内部的值**，而是需要实际的进行节点交换。
+
+```go
+ListNode? swapPairs(ListNode? head) {
+  ListNode dummy = ListNode();
+  dummy.next = head;
+  head = dummy;
+
+  while (head?.next != null && head?.next?.next != null) {
+    ListNode? p = head?.next;
+    ListNode? q = p?.next;
+
+    p?.next = q?.next;
+    q?.next = p;
+    head?.next = q;
+    head = p;
+  }
+
+  return dummy.next;
+}
+```
+
 ## 总结
 
 链表必须要掌握的一些点，通过下面练习题，基本大部分的链表类的题目都是手到擒来~
