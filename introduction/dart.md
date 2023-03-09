@@ -3,7 +3,8 @@
 ## 基本语法
 
 [Dart语言官网](https://dart.dev/guides/language/language-tour)
-由于leetcode现在不支持dart语言(以后肯定会支持的),大家可以在[dartpad](https://dartpad.dev/)上调试程序
+由于leetcode现在还是有些题不支持dart语言(以后肯定会支持的),大家可以在[dartpad](https://dartpad.dev/)上调试程序.
+
 ### 1.数组 List
 数组在算法中使用场景最多的数据结构,所以基本的遍历,和一些常用的函数，变量尽量多掌握一些
 ``` dart
