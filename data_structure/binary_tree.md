@@ -248,7 +248,7 @@ class Solution {
 
 思路：分治法，有左子树的公共祖先或者有右子树的公共祖先，就返回子树的祖先，否则返回根节点
 
-```go
+```dart
   TreeNode? lowestCommonAncestor(TreeNode? root, TreeNode? p, TreeNode? q) {
     if (root == null) {
       return root;
@@ -284,7 +284,7 @@ class Solution {
 
 ```dart
   List<List<int>> levelOrder(TreeNode? root) {
-    List<List<int>> results = [[]];
+    List<List<int>> results = [];
     if (root == null) {
       return results;
     }
@@ -319,7 +319,7 @@ class Solution {
 
 ```dart
   List<List<int>> levelOrderBottom(TreeNode? root) {
-    List<List<int>> results = [[]];
+    List<List<int>> results = [];
     if (root == null) {
       return results;
     }
@@ -352,7 +352,7 @@ class Solution {
 
 ```dart
   List<List<int>> levelOrder(TreeNode? root) {
-    List<List<int>> results = [[]];
+    List<List<int>> results = [];
     if (root == null) {
       return results;
     }
@@ -373,7 +373,7 @@ class Solution {
       }
       results.add(temp);
     }
-    List<List<int>> temp = [[]];
+    List<List<int>> temp = [];
     for (var i = 0; i < results.length; i++) {
       if (i % 2 == 0) {
         temp.add(results[i]);

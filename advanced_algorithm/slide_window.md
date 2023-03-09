@@ -48,62 +48,42 @@ void slidingWindow(string s, string t) {
 
 > 给你一个字符串 S、一个字符串 T，请在字符串 S 里面找出：包含 T 所有字母的最小子串
 
-```go
-func minWindow(s string, t string) string {
-	// 保存滑动窗口字符集
-	win := make(map[byte]int)
-	// 保存需要的字符集
-	need := make(map[byte]int)
-	for i := 0; i < len(t); i++ {
-		need[t[i]]++
-	}
-	// 窗口
-	left := 0
-	right := 0
-	// match匹配次数
-	match := 0
-	start := 0
-	end := 0
-	min := math.MaxInt64
-	var c byte
-	for right < len(s) {
-		c = s[right]
-		right++
-		// 在需要的字符集里面，添加到窗口字符集里面
-		if need[c] != 0 {
-			win[c]++
-			// 如果当前字符的数量匹配需要的字符的数量，则match值+1
-			if win[c] == need[c] {
-				match++
-			}
+```dart
+class Solution {
+	String minWindow(String s, String t) {
+		// 初始化计数数组freq，用于记录t中每个字符出现的次数
+		var freq = List<int>.filled(128, 0);
+		for (var c in t.codeUnits) {
+		freq[c]++;
 		}
+		// 初始化左右指针、最小长度、起始位置和字符匹配计数器
+		var left = 0, right = 0, minLen = s.length + 1, start = 0, count = t.length;
 
-		// 当所有字符数量都匹配之后，开始缩紧窗口
-		for match == len(need) {
-			// 获取结果
-			if right-left < min {
-				min = right - left
-				start = left
-				end = right
+		// 移动右指针，扩大窗口
+		while (right < s.length) {
+			// 如果右指针指向的字符出现在t中，则计数器减1
+			if (freq[s.codeUnitAt(right++)]-- > 0) {
+				count--;
 			}
-			c = s[left]
-			left++
-			// 左指针指向不在需要字符集则直接跳过
-			if need[c] != 0 {
-				// 左指针指向字符数量和需要的字符相等时，右移之后match值就不匹配则减一
-				// 因为win里面的字符数可能比较多，如有10个A，但需要的字符数量可能为3
-				// 所以在压死骆驼的最后一根稻草时，match才减一，这时候才跳出循环
-				if win[c] == need[c] {
-					match--
+
+			// 如果当前窗口包含了t中的所有字符，则移动左指针，缩小窗口
+			while (count == 0) {
+				// 更新最小覆盖子串的长度和起始位置
+				if (right - left < minLen) {
+				minLen = right - left;
+				start = left;
 				}
-				win[c]--
+
+				// 如果左指针指向的字符出现在t中，则计数器加1
+				if (freq[s.codeUnitAt(left++)]++ == 0) {
+				count++;
+				}
 			}
 		}
+		// 如果最小覆盖子串的长度为s.length+1，则不存在符合要求的子串，返回空字符串
+		// 否则，返回最小覆盖子串
+		return minLen == s.length + 1 ? '' : s.substring(start, start + minLen);
 	}
-	if min == math.MaxInt64 {
-		return ""
-	}
-	return s[start:end]
 }
 ```
 
@@ -111,42 +91,41 @@ func minWindow(s string, t string) string {
 
 > 给定两个字符串  **s1**  和  **s2**，写一个函数来判断  **s2**  是否包含  **s1 **的排列。
 
-```go
-func checkInclusion(s1 string, s2 string) bool {
-	win := make(map[byte]int)
-	need := make(map[byte]int)
-	for i := 0; i < len(s1); i++ {
-		need[s1[i]]++
-	}
-	left := 0
-	right := 0
-	match := 0
-	for right < len(s2) {
-		c := s2[right]
-		right++
-		if need[c] != 0 {
-			win[c]++
-			if win[c] == need[c] {
-				match++
-			}
-		}
-		// 当窗口长度大于字符串长度，缩紧窗口
-		for right-left >= len(s1) {
-			// 当窗口长度和字符串匹配，并且里面每个字符数量也匹配时，满足条件
-			if match == len(need) {
-				return true
-			}
-			d := s2[left]
-			left++
-			if need[d] != 0 {
-				if win[d] == need[d] {
-					match--
-				}
-				win[d]--
-			}
-		}
-	}
-	return false
+```dart
+class Solution {
+  bool checkInclusion(String s1, String s2) {
+    var freq = List<int>.filled(128, 0);
+
+    // 统计 s1 中每个字符出现的次数
+    for (var c in s1.codeUnits) {
+      freq[c]++;
+    }
+
+    var left = 0, right = 0, count = s1.length;
+
+    while (right < s2.length) {
+      // 如果当前字符在 s1 中出现过，则减少其在 freq 数组中的出现次数
+      if (freq[s2.codeUnitAt(right++)]-- > 0) {
+        count--;
+      }
+
+      // 如果 s1 中所有字符都出现在了当前窗口中，则返回 true
+      if (count == 0) {
+        return true;
+      }
+
+      // 如果当前窗口大小已经等于 s1 的长度了，则需要缩小窗口
+      if (right - left == s1.length) {
+        // 如果左边界字符在 s1 中出现过，则需要增加其在 freq 数组中的出现次数
+        if (freq[s2.codeUnitAt(left++)]++ >= 0) {
+          count++;
+        }
+      }
+    }
+
+    // 如果遍历整个 s2 都没找到符合条件的子串，则返回 false
+    return false;
+  }
 }
 
 ```
@@ -155,44 +134,44 @@ func checkInclusion(s1 string, s2 string) bool {
 
 > 给定一个字符串  **s **和一个非空字符串  **p**，找到  **s **中所有是  **p **的字母异位词的子串，返回这些子串的起始索引。
 
-```go
-func findAnagrams(s string, p string) []int {
-    win := make(map[byte]int)
-	need := make(map[byte]int)
-	for i := 0; i < len(p); i++ {
-		need[p[i]]++
-	}
-	left := 0
-	right := 0
-	match := 0
-    ans:=make([]int,0)
-	for right < len(s) {
-		c := s[right]
-		right++
-		if need[c] != 0 {
-			win[c]++
-			if win[c] == need[c] {
-				match++
-			}
-		}
-		// 当窗口长度大于字符串长度，缩紧窗口
-		for right-left >= len(p) {
-			// 当窗口长度和字符串匹配，并且里面每个字符数量也匹配时，满足条件
-			if right-left == len(p)&& match == len(need) {
-				ans=append(ans,left)
-			}
-			d := s[left]
-			left++
-			if need[d] != 0 {
-				if win[d] == need[d] {
-					match--
-				}
-				win[d]--
-			}
-		}
-	}
-	return ans
+```dart
+class Solution {
+  List<int> findAnagrams(String s, String p) {
+    var result = <int>[];
+
+    // 记录p中每个字符出现的次数
+    var target = List<int>.filled(26, 0);
+    for (var i = 0; i < p.length; i++) {
+      target[p.codeUnitAt(i) - 97]++;
+    }
+
+    var left = 0, right = 0, count = p.length;
+
+    // 移动右指针，扩大窗口
+    while (right < s.length) {
+      // 如果当前字符在p中出现过，则count减1
+      if (target[s.codeUnitAt(right++) - 97]-- > 0) {
+        count--;
+      }
+
+      // 如果count变为0，说明窗口中包含了p中所有字符的排列，将左指针加入结果数组
+      if (count == 0) {
+        result.add(left);
+      }
+
+      // 当窗口大小等于p的长度时，移动左指针，缩小窗口
+      if (right - left == p.length) {
+        // 如果当前左指针指向的字符在p中出现过，则count加1
+        if (target[s.codeUnitAt(left++) - 97]++ >= 0) {
+          count++;
+        }
+      }
+    }
+
+    return result;
+  }
 }
+
 ```
 
 [longest-substring-without-repeating-characters](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/)
@@ -204,36 +183,24 @@ func findAnagrams(s string, p string) []int {
 > 输出: 3
 > 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
 
-```go
-func lengthOfLongestSubstring(s string) int {
-    // 滑动窗口核心点：1、右指针右移 2、根据题意收缩窗口 3、左指针右移更新窗口 4、根据题意计算结果
-    if len(s)==0{
-        return 0
+```dart
+class Solution {
+  int lengthOfLongestSubstring(String s) {
+    int n = s.length;
+    Set<String> set = Set(); // 用 Set 记录当前窗口中出现的字符
+    int ans = 0, i = 0, j = 0; // ans 记录最长子串长度，i 和 j 记录窗口左右边界
+
+    while (i < n && j < n) { // 右指针 j 向右移动，直到字符串末尾
+      if (!set.contains(s[j])) { // 如果当前字符不在窗口中，加入窗口
+        set.add(s[j++]);
+        ans = ans > j - i ? ans : j - i; // 更新最长子串长度
+      } else { // 如果当前字符已经在窗口中，左指针 i 向右移动，缩小窗口
+        set.remove(s[i++]);
+      }
     }
-    win:=make(map[byte]int)
-    left:=0
-    right:=0
-    ans:=1
-    for right<len(s){
-        c:=s[right]
-        right++
-        win[c]++
-        // 缩小窗口
-        for win[c]>1{
-            d:=s[left]
-            left++
-            win[d]--
-        }
-        // 计算结果
-        ans=max(right-left,ans)
-    }
-    return ans
-}
-func max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
+
+    return ans;
+  }
 }
 ```
 

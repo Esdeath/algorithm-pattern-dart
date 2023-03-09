@@ -72,15 +72,19 @@ ListNode? deleteDuplicates(ListNode? head) {
 思路：采用递归的方法进行翻转链表
 
 ```dart
-ListNode? reverseList(ListNode? head) {
-  if (head == null || head.next == null) {
-    return head;
+  ListNode? reverseList(ListNode? head) {
+    ListNode? prev;
+    ListNode? post;
+    ListNode? curr = head;
+    while (curr != null) {
+      post = curr.next;
+      curr.next = prev;
+      prev = curr;
+      curr = post;
+    }
+
+    return prev;
   }
-  var newHeader = reverseList(head.next);
-  head.next?.next = head;
-  head.next = null;
-  return newHeader;
-}
 ```
 
 ### [reverse-linked-list-ii](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
@@ -299,15 +303,19 @@ ListNode? findMiddle(ListNode? head) {
   return slow;
 }
 
-ListNode? reverseList(ListNode? head) {
-  if (head == null || head.next == null) {
-    return head;
+  ListNode? reverseList(ListNode? head) {
+    ListNode? prev;
+    ListNode? post;
+    ListNode? curr = head;
+    while (curr != null) {
+      post = curr.next;
+      curr.next = prev;
+      prev = curr;
+      curr = post;
+    }
+
+    return prev;
   }
-  var newHeader = reverseList(head.next);
-  head.next?.next = head;
-  head.next = null;
-  return newHeader;
-}
 
 ```
 
@@ -382,42 +390,19 @@ ListNode? detectCycle(ListNode? head) {
 > 请判断一个链表是否为回文链表。
 
 ```dart
-bool isPalindrome(ListNode? head) {
-  if (head == null || head.next == null) {
-    return true;
+class Solution {
+  bool isPalindrome(ListNode? head) {
+      var ans=[];
+      while(head!=null){
+        ans.add(head.val);
+        head=head.next;
+      }
+      var n=ans.length;
+      for(var i=0;i<=n/2;i++){
+          if(ans[i]!=ans[n-i-1])return false;
+      }
+      return true;
   }
-  ListNode? mid = findMiddle(head);
-  ListNode? tail = mid?.next;
-  mid?.next = null;
-  tail = reverseList(tail);
-  while (tail != null && head != null) {
-    if (tail.val != head.val) {
-      return false;
-    }
-    tail = tail.next;
-    head = head.next;
-  }
-  return false;
-}
-
-ListNode? findMiddle(ListNode? head) {
-  ListNode? slow = head;
-  ListNode? fast = head?.next;
-  while (fast != null && fast.next != null) {
-    slow = slow?.next;
-    fast = fast.next?.next;
-  }
-  return slow;
-}
-
-ListNode? reverseList(ListNode? head) {
-  if (head == null || head.next == null) {
-    return head;
-  }
-  var newHeader = reverseList(head.next);
-  head.next?.next = head;
-  head.next = null;
-  return newHeader;
 }
 ```
 

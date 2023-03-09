@@ -181,69 +181,60 @@ List<int> inorderTraversal(TreeNode? root) {
 思路：通过深度搜索遍历可能性（注意标记已访问元素）
 
 ```dart
-class Position {
-  int x = 0;
-  int y = 0;
-  Position(this.x, this.y);
-}
+class Solution {
+  int numIslands(List<List<String>> grid) {
+    int m = grid.length;  // 网格的行数
+    int n = grid[0].length;  // 网格的列数
+    int count = 0;  // 岛屿数量的计数器
 
-//岛屿问题
-int numIslands(List<List<String>> grid) {
-  int result = 0;
-  //初始化visited记录是否访问过
-  int row = grid.length;
-  int column = grid[0].length;
-  List<List<bool>> isVisited = List.filled(row, List.filled(column, false));
-  print(isVisited);
-  //从第一个节点开始访问
-  for (var i = 0; i < row; i++) {
-    for (var j = 0; j < column; j++) {
-      //如果没有被访问过,且为 "1"就访问
-      if (!isVisited[i][j] && grid[i][j] == "1") {
-        bfs(i, j, grid, isVisited);
-        result += 1;
+    // 四个方向的偏移量，用于遍历网格的相邻单元格
+    List<List<int>> directions = [      [1, 0],   // 向下
+      [-1, 0],  // 向上
+      [0, 1],   // 向右
+      [0, -1],  // 向左
+    ];
+
+    // 将指定的单元格标记为已访问，并将其添加到队列中
+    void markVisited(int row, int col, List<List<int>> queue) {
+      grid[row][col] = '0';  // 将单元格标记为已访问
+      queue.add([row, col]);  // 将单元格添加到队列中
+    }
+
+    // 遍历指定单元格的相邻单元格，并将未访问的单元格添加到队列中
+    void traverseAdjacentCells(int row, int col, List<List<int>> queue) {
+      for (List<int> direction in directions) {
+        int r = row + direction[0];  // 计算相邻单元格的行坐标
+        int c = col + direction[1];  // 计算相邻单元格的列坐标
+
+        // 如果相邻单元格在网格范围内且未被访问，则标记为已访问并添加到队列中
+        if (r >= 0 && r < m && c >= 0 && c < n && grid[r][c] == '1') {
+          markVisited(r, c, queue);
+        }
       }
     }
-  }
-  return result;
-}
 
+    // 遍历整个网格，对每个未被访问的岛屿进行 BFS 遍历，并增加岛屿数量计数器
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == '1') {  // 如果单元格是陆地而未被访问
+          count++;  // 岛屿数量加1
+          List<List<int>> queue = [];  // 创建一个队列用于 BFS 遍历
+          markVisited(i, j, queue);  // 标记当前单元格为已访问，并添加到队列中
 
-void bfs(
-    int xPos, int yPos, List<List<String>> grid, List<List<bool>> isVisited) {
-  List<Position> queue = [];
-  queue.add(Position(xPos, yPos));
-  isVisited[xPos][yPos] = true;
-
-  //四个方向
-  List<Position> directions = [
-    Position(0, 1),
-    Position(0, -1),
-    Position(1, 0),
-    Position(-1, 0)
-  ];
-
-  while (queue.isNotEmpty) {
-    Position currentPos = queue.removeAt(0);
-    for (var i = 0; i < directions.length; i++) {
-      int x = currentPos.x + directions[0].x;
-      int y = currentPos.y + directions[0].y;
-      if (isValid(x, y, grid, isVisited)) {
-        queue.add(Position(x, y));
-        isVisited[x][y] = true;
+          while (queue.isNotEmpty) {  // 当队列不为空时进行 BFS 遍历
+            List<int> curr = queue.removeAt(0);  // 从队列中取出一个单元格
+            int row = curr[0];  // 取出该单元格的行坐标
+            int col = curr[1];  // 取出该单元格的列坐标
+            traverseAdjacentCells(row, col, queue);  // 遍历
+          }
+        }
       }
     }
+
+    return count;  // 返回岛屿数量
   }
 }
-//xPos,yPosb不能越界，如果没有被访问过isVisited =false,且为 "1"就访问
-bool isValid(
-    int xPos, int yPos, List<List<String>> grid, List<List<bool>> isVisited) {
-  if (xPos < 0 || xPos >= grid.length) return false;
-  if (yPos < 0 || yPos >= grid[0].length) return false;
-  if (isVisited[xPos][yPos]) return false;
-  if (grid[xPos][yPos] == "0") return false;
-  return true;
-}
+
 
 ```
 
@@ -261,22 +252,35 @@ bool isValid(
 ![image.png](https://img.fuiboom.com/img/stack_rain2.png)
 
 ```dart
-//暴力解法
-int largestRectangleArea(List<int> heights) {
-  int count = heights.length;
-
-  int result = 0;
-
-  //包含某个数的累加
-  for (var j = 0; j < count; j++) {
-    int minx = 100000000;
-
-    for (var z = j; z < count; z++) {
-      minx = min(minx, heights[z]);
-      result = max((z - j + 1) * minx, result);
+class Solution {
+  int largestRectangleArea(List<int> heights) {
+    // 使用单调栈来维护每个柱子的左右边界
+    List<int> stack = [];
+    int maxArea = 0;
+    int i = 0;
+    while (i < heights.length) {
+      // 如果栈为空或者当前柱子高度大于栈顶柱子的高度，则将当前柱子的下标压入栈中
+      if (stack.isEmpty || heights[i] >= heights[stack.last]) {
+        stack.add(i);
+        i++;
+      } else {
+        // 如果当前柱子高度小于栈顶柱子的高度，则弹出栈顶柱子
+        int topIndex = stack.removeLast();
+        // 计算弹出的栈顶柱子对应的最大面积，并更新maxArea
+        int area = heights[topIndex] *
+            (stack.isEmpty ? i : i - stack.last - 1);
+        maxArea = max(maxArea, area);
+      }
     }
+    // 处理栈中剩余的柱子
+    while (!stack.isEmpty) {
+      int topIndex = stack.removeLast();
+      int area = heights[topIndex] *
+          (stack.isEmpty ? i : i - stack.last - 1);
+      maxArea = max(maxArea, area);
+    }
+    return maxArea;
   }
-  return result;
 }
 
 ```

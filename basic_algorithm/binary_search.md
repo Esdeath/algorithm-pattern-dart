@@ -274,37 +274,29 @@ int findMin(List<int> nums) {
 ```dart
 
 int search(List<int> nums, int target) {
-  int start = 0;
-  int end = nums.length - 1;
-
-  while (start + 1 < end) {
-    int mid = start + ((end - start) >> 1);
-    if (target < nums[mid]) {
-      return mid;
+    int start = 0;
+    int end = nums.length - 1;
+    while(start + 1 < end){
+        int mid = start + ((end - start)>>1);
+        if(nums[mid] == target) return mid;
+        if(nums[mid] > nums[start]) {
+            if(nums[mid] >= target && nums[start] <= target){
+                end = mid;
+            } else {
+                start = mid;
+            }
+        } else if(nums[mid] < nums[end]) {
+            if(nums[end] >= target && nums[mid] <= target){
+                start = mid;
+            } else {
+                end = mid;
+            }
+        } 
     }
-    if (nums[start] < nums[mid]) {
-      if (target <= nums[mid] && target >= nums[start]) {
-        end = mid;
-      } else {
-        start = mid;
-      }
-    } else {
-      if (target <= nums[end] && target >= nums[mid]) {
-        start = mid;
-      } else {
-        end = mid;
-      }
-    }
-  }
-  if (nums[start] == target) {
-    return start;
-  }
-  if (nums[end] == target) {
-    return end;
-  }
-  return -1;
+    if(nums[start] == target) return start;
+    if(nums[end] == target) return end;
+    return -1;
 }
-
 ```
 
 ### [search-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
@@ -314,43 +306,43 @@ int search(List<int> nums, int target) {
 > 编写一个函数来判断给定的目标值是否存在于数组中。若存在返回  true，否则返回  false。(包含重复元素)
 
 ```dart
-
 bool search(List<int> nums, int target) {
-  int start = 0;
-  int end = nums.length - 1;
+    if(search1(nums,target) == -1){
+        return false;
+    }
+    return true;
+}
 
-  while (start + 1 < end) {
-    while (start < end && nums[start] == nums[start + 1]) {
-      start++;
+int search1(List<int> nums, int target) {
+    int start = 0;
+    int end = nums.length - 1;
+    while(start + 1 < end){
+        while(start < end && nums[start] == nums[start + 1] ){
+            start++;
+        }
+        while(start < end && nums[end] == nums[end - 1] ){
+            end--;
+        }
+        int mid = start + ((end - start)>>1);
+
+        if(nums[mid] == target) return mid;
+        if(nums[mid] > nums[start]) {
+            if(nums[mid] >= target && nums[start] <= target){
+                end = mid;
+            } else {
+                start = mid;
+            }
+        } else if(nums[mid] < nums[end]) {
+            if(nums[end] >= target && nums[mid] <= target){
+                start = mid;
+            } else {
+                end = mid;
+            }
+        } 
     }
-    while (start < end && nums[end] == nums[end - 1]) {
-      end--;
-    }
-    int mid = start + ((end - start) >> 1);
-    if (target < nums[mid]) {
-      return true;
-    }
-    if (nums[start] < nums[mid]) {
-      if (target <= nums[mid] && target >= nums[start]) {
-        end = mid;
-      } else {
-        start = mid;
-      }
-    } else {
-      if (target <= nums[end] && target >= nums[mid]) {
-        start = mid;
-      } else {
-        end = mid;
-      }
-    }
-  }
-  if (nums[start] == target) {
-    return true;
-  }
-  if (nums[end] == target) {
-    return true;
-  }
-  return false;
+    if(nums[start] == target) return start;
+    if(nums[end] == target) return end;
+    return -1;
 }
 ```
 

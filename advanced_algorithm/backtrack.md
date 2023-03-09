@@ -89,34 +89,37 @@ class Solution {
 ```dart
 class Solution {
   List<List<int>> permute(List<int> nums) {
-      List<bool> isVisited = List<bool>.filled(nums.length, false);
-      List<List<int>> result = [];
-      List<int> temp = [];
+    List<List<int>> res = []; // 存储所有排列结果
+    List<int> temp = []; // 存储当前排列结果
+    Set<int> used = Set(); // 存储已经使用过的数字
 
-      backtrack(nums,isVisited,temp,result);
-      return result;
-  }
-	// nums 输入集合
-	// visited 当前递归标记过的元素
-	// list 临时结果集(路径)
-	// result 最终结果
-  void backtrack(List<int> nums,List<bool> isVisited,List<int> temp,List<List<int>> result){
-	  // 返回条件：临时结果和输入集合长度一致 才是全排列
-      if(temp.length == nums.length){
-          result.add([...temp]);
-          return;
+    // 递归函数，用来生成所有的排列结果
+    void backtrack() {
+      // 如果当前排列结果的长度等于nums的长度，则将其加入res中
+      if (temp.length == nums.length) {
+        res.add([...temp]); // 注意要将temp的拷贝加入res中，否则会影响后续的操作
+        return;
       }
-      for(int i = 0;i < nums.length;i++){
-		// 已经添加过的元素，直接跳过
-          if(i > 0 &&nums[i] == nums[i -1] && !isVisited[i]) continue;
-          temp.add(nums[i]);
-          isVisited[i] = true;
-          backtrack(nums,isVisited,temp,result);
-          isVisited[i] = false;
-          temp.removeLast();
+
+      // 遍历nums数组，尝试将每个数字加入排列中
+      for (int i = 0; i < nums.length; i++) {
+        if (!used.contains(nums[i])) {
+          temp.add(nums[i]); // 将当前数字加入排列中
+          used.add(nums[i]); // 将当前数字标记为已经使用过
+          backtrack(); // 递归，继续生成下一个数字的排列结果
+          temp.removeLast(); // 回溯，将当前数字从排列中移除
+          used.remove(nums[i]); // 回溯，将当前数字标记为未使用过
+        }
       }
+    }
+
+    // 调用递归函数，生成所有的排列结果
+    backtrack();
+
+    return res;
   }
 }
+
 ```
 
 ### [permutations-ii](https://leetcode-cn.com/problems/permutations-ii/)
