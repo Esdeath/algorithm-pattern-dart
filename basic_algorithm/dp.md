@@ -42,103 +42,42 @@
 - 二叉树 子问题是没有交集，所以大部分二叉树都用递归或者分治法，即 DFS，就可以解决
 - 像 triangle 这种是有重复走的情况，**子问题是有交集**，所以可以用动态规划来解决
 
-动态规划，自底向上
+动态规划
 
-```go
-func minimumTotal(triangle [][]int) int {
-	if len(triangle) == 0 || len(triangle[0]) == 0 {
-		return 0
-	}
-	// 1、状态定义：f[i][j] 表示从i,j出发，到达最后一层的最短路径
-	var l = len(triangle)
-	var f = make([][]int, l)
-	// 2、初始化
-	for i := 0; i < l; i++ {
-		for j := 0; j < len(triangle[i]); j++ {
-			if f[i] == nil {
-				f[i] = make([]int, len(triangle[i]))
-			}
-			f[i][j] = triangle[i][j]
-		}
-	}
-	// 3、递推求解
-	for i := len(triangle) - 2; i >= 0; i-- {
-		for j := 0; j < len(triangle[i]); j++ {
-			f[i][j] = min(f[i+1][j], f[i+1][j+1]) + triangle[i][j]
-		}
-	}
-	// 4、答案
-	return f[0][0]
-}
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
+```dart
+class Solution {
+  int minimumTotal(List<List<int>> triangle) {
+    int n = triangle.length;
+    List<int> dp = List<int>.filled(n, 0);
+    dp[0] = triangle[0][0];
 
-```
+    // 遍历三角形的每一行
+    for (int i = 1; i < n; i++) {
+      int temp1 = dp[0]; // 保存dp[0]的值，用于更新dp[1]
+      dp[0] += triangle[i][0]; // 更新dp[0]
+      for (int j = 1; j < i; j++) {
+        int temp2 = dp[j]; // 保存dp[j]的值，用于更新dp[j+1]
+        dp[j] = min(dp[j], temp1) + triangle[i][j]; // 更新dp[j]
+        temp1 = temp2; // 更新temp1
+      }
+      dp[i] = temp1 + triangle[i][i]; // 更新dp[i]
+    }
 
-动态规划，自顶向下
+    // 找出dp数组中的最小值
+    int minTotal = dp[0];
+    for (int i = 1; i < n; i++) {
+      minTotal = min(minTotal, dp[i]);
+    }
 
-```go
-// 测试用例：
-// [
-// [2],
-// [3,4],
-// [6,5,7],
-// [4,1,8,3]
-// ]
-func minimumTotal(triangle [][]int) int {
-    if len(triangle) == 0 || len(triangle[0]) == 0 {
-        return 0
-    }
-    // 1、状态定义：f[i][j] 表示从0,0出发，到达i,j的最短路径
-    var l = len(triangle)
-    var f = make([][]int, l)
-    // 2、初始化
-    for i := 0; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            if f[i] == nil {
-                f[i] = make([]int, len(triangle[i]))
-            }
-            f[i][j] = triangle[i][j]
-        }
-    }
-    // 递推求解
-    for i := 1; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            // 这里分为两种情况：
-            // 1、上一层没有左边值
-            // 2、上一层没有右边值
-            if j-1 < 0 {
-                f[i][j] = f[i-1][j] + triangle[i][j]
-            } else if j >= len(f[i-1]) {
-                f[i][j] = f[i-1][j-1] + triangle[i][j]
-            } else {
-                f[i][j] = min(f[i-1][j], f[i-1][j-1]) + triangle[i][j]
-            }
-        }
-    }
-    result := f[l-1][0]
-    for i := 1; i < len(f[l-1]); i++ {
-        result = min(result, f[l-1][i])
-    }
-    return result
+    return minTotal;
+  }
 }
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
-```
 
 ## 递归和动规关系
 
 递归是一种程序的实现方式：函数的自我调用
 
-```go
+```dart
 Function(x) {
 	...
 	Funciton(x-1);
@@ -194,34 +133,31 @@ Function(x) {
 3、intialize: f[0][0] = A[0][0]、f[i][0] = sum(0,0 -> i,0)、 f[0][i] = sum(0,0 -> 0,i)
 4、answer: f[n-1][m-1]
 
-```go
-func minPathSum(grid [][]int) int {
-    // 思路：动态规划
-    // f[i][j] 表示i,j到0,0的和最小
-    if len(grid) == 0 || len(grid[0]) == 0 {
-        return 0
+```dart
+class Solution {
+  int minPathSum(List<List<int>> grid) {
+    int m = grid.length;
+    int n = grid[0].length;
+
+    // 自顶向下的动态规划
+    // 计算从(0,0)到(i,j)的最小路径和
+    for (int i = 1; i < m; i++) {
+      grid[i][0] += grid[i - 1][0];
     }
-    // 复用原来的矩阵列表
-    // 初始化：f[i][0]、f[0][j]
-    for i := 1; i < len(grid); i++ {
-        grid[i][0] = grid[i][0] + grid[i-1][0]
+    for (int j = 1; j < n; j++) {
+      grid[0][j] += grid[0][j - 1];
     }
-    for j := 1; j < len(grid[0]); j++ {
-        grid[0][j] = grid[0][j] + grid[0][j-1]
+    for (int i = 1; i < m; i++) {
+      for (int j = 1; j < n; j++) {
+        grid[i][j] += grid[i - 1][j] < grid[i][j - 1] ? grid[i - 1][j] : grid[i][j - 1];
+      }
     }
-    for i := 1; i < len(grid); i++ {
-        for j := 1; j < len(grid[i]); j++ {
-            grid[i][j] = min(grid[i][j-1], grid[i-1][j]) + grid[i][j]
-        }
-    }
-    return grid[len(grid)-1][len(grid[0])-1]
+
+    // 返回从(0,0)到(m-1,n-1)的最小路径和
+    return grid[m - 1][n - 1];
+  }
 }
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
+
 ```
 
 ### [unique-paths](https://leetcode-cn.com/problems/unique-paths/)
@@ -230,25 +166,30 @@ func min(a, b int) int {
 > 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
 > 问总共有多少条不同的路径？
 
-```go
-func uniquePaths(m int, n int) int {
-	// f[i][j] 表示i,j到0,0路径数
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			f[i][j] = f[i-1][j] + f[i][j-1]
-		}
-	}
-	return f[m-1][n-1]
+```dart
+class Solution {
+  int uniquePaths(int m, int n) {
+    var dp = List<List<int>>.generate(m, (_) => List<int>.filled(n, 0));
+
+    // 初始化第一行和第一列的格子为 1
+    for (var i = 0; i < m; i++) {
+      dp[i][0] = 1;
+    }
+    for (var j = 0; j < n; j++) {
+      dp[0][j] = 1;
+    }
+
+    // 计算其他格子的路径数
+    for (var i = 1; i < m; i++) {
+      for (var j = 1; j < n; j++) {
+        dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+      }
+    }
+
+    return dp[m - 1][n - 1];
+  }
 }
+
 ```
 
 ### [unique-paths-ii](https://leetcode-cn.com/problems/unique-paths-ii/)
@@ -259,43 +200,35 @@ func uniquePaths(m int, n int) int {
 > 现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
 
 ```go
-func uniquePathsWithObstacles(obstacleGrid [][]int) int {
-	// f[i][j] = f[i-1][j] + f[i][j-1] 并检查障碍物
-	if obstacleGrid[0][0] == 1 {
-		return 0
-	}
-	m := len(obstacleGrid)
-	n := len(obstacleGrid[0])
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		if obstacleGrid[i][0] == 1 || f[i-1][0] == 0 {
-			f[i][0] = 0
-		}
-	}
-	for j := 1; j < n; j++ {
-		if obstacleGrid[0][j] == 1 || f[0][j-1] == 0 {
-			f[0][j] = 0
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			if obstacleGrid[i][j] == 1 {
-				f[i][j] = 0
-			} else {
-				f[i][j] = f[i-1][j] + f[i][j-1]
-			}
-		}
-	}
-	return f[m-1][n-1]
+class Solution {
+  int uniquePathsWithObstacles(List<List<int>> obstacleGrid) {
+    int m = obstacleGrid.length;
+    int n = obstacleGrid[0].length;
+
+    //初始化dp数组
+    var dp = List.generate(m, (_) => List.filled(n, 0));
+
+    //对于第一行和第一列，如果有障碍，则该点之后的所有点都不能到达，因此dp数组的初始值应为0
+    for (int i = 0; i < m && obstacleGrid[i][0] == 0; i++) {
+      dp[i][0] = 1;
+    }
+    for (int j = 0; j < n && obstacleGrid[0][j] == 0; j++) {
+      dp[0][j] = 1;
+    }
+
+    //填充dp数组
+    for (int i = 1; i < m; i++) {
+      for (int j = 1; j < n; j++) {
+        if (obstacleGrid[i][j] == 0) {  //如果当前格子没有障碍
+          dp[i][j] = dp[i - 1][j] + dp[i][j - 1];  //从上面和左边的格子到达当前格子的路径数之和
+        }
+      }
+    }
+
+    return dp[m - 1][n - 1];  //返回从左上角到右下角的路径数
+  }
 }
+
 ```
 
 ## 2、序列类型（40%）
@@ -304,20 +237,31 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 
 > 假设你正在爬楼梯。需要  *n*  阶你才能到达楼顶。
 
-```go
-func climbStairs(n int) int {
-    // f[i] = f[i-1] + f[i-2]
-    if n == 1 || n == 0 {
-        return n
+```dart
+class Solution {
+  int climbStairs(int n) {
+    // 如果楼梯只有一级或两级，只有一种方式
+    if (n == 1 || n == 2) {
+      return n;
     }
-    f := make([]int, n+1)
-    f[1] = 1
-    f[2] = 2
-    for i := 3; i <= n; i++ {
-        f[i] = f[i-1] + f[i-2]
+
+    // 定义一个数组用来存储每一级楼梯的不同方式数目
+    var dp = List<int>.filled(n, 0);
+
+    // 初始化dp数组前两个元素
+    dp[0] = 1;
+    dp[1] = 2;
+
+    // 从第三个元素开始遍历dp数组，逐步计算出每一级楼梯的不同方式数目
+    for (var i = 2; i < n; i++) {
+      dp[i] = dp[i - 1] + dp[i - 2];
     }
-    return f[n]
+
+    // 返回最后一个元素，即为n级楼梯的不同方式数目
+    return dp[n - 1];
+  }
 }
+
 ```
 
 ### [jump-game](https://leetcode-cn.com/problems/jump-game/)
@@ -326,27 +270,26 @@ func climbStairs(n int) int {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 判断你是否能够到达最后一个位置。
 
-```go
-func canJump(nums []int) bool {
-    // 思路：看最后一跳
-    // 状态：f[i] 表示是否能从0跳到i
-    // 推导：f[i] = OR(f[j],j<i&&j能跳到i) 判断之前所有的点最后一跳是否能跳到当前点
-    // 初始化：f[0] = 0
-    // 结果： f[n-1]
-    if len(nums) == 0 {
-        return true
+```dart
+class Solution {
+  bool canJump(List<int> nums) {
+    var n = nums.length;
+    var maxJump = 0;
+    
+    // 遍历每个位置，更新当前能到达的最大距离
+    for (var i = 0; i < n; i++) {
+      // 如果当前位置超出当前能到达的最大距离，说明无法到达当前位置
+      if (i > maxJump) {
+        return false;
+      }
+      // 更新当前能到达的最大距离
+      maxJump = max(maxJump, i + nums[i]);
     }
-    f := make([]bool, len(nums))
-    f[0] = true
-    for i := 1; i < len(nums); i++ {
-        for j := 0; j < i; j++ {
-            if f[j] == true && nums[j]+j >= i {
-                f[i] = true
-            }
-        }
-    }
-    return f[len(nums)-1]
+    
+    return true;
+  }
 }
+
 ```
 
 ### [jump-game-ii](https://leetcode-cn.com/problems/jump-game-ii/)
@@ -355,98 +298,71 @@ func canJump(nums []int) bool {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 你的目标是使用最少的跳跃次数到达数组的最后一个位置。
 
-```go
-// v1动态规划（其他语言超时参考v2）
-func jump(nums []int) int {
-    // 状态：f[i] 表示从起点到当前位置最小次数
-    // 推导：f[i] = f[j],a[j]+j >=i,min(f[j]+1)
-    // 初始化：f[0] = 0
-    // 结果：f[n-1]
-    f := make([]int, len(nums))
-    f[0] = 0
-    for i := 1; i < len(nums); i++ {
-        // f[i] 最大值为i
-        f[i] = i
-        // 遍历之前结果取一个最小值+1
-        for j := 0; j < i; j++ {
-            if nums[j]+j >= i {
-                f[i] = min(f[j]+1,f[i])
-            }
-        }
-    }
-    return f[len(nums)-1]
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
-```
+```dart
+class Solution {
+  int jump(List<int> nums) {
+    int n = nums.length;
+    int end = 0; // 当前能够到达的最远位置
+    int farthest = 0; // 经过最少步数能够到达的最远位置
+    int jumps = 0; // 跳跃次数
 
-```go
-// v2 动态规划+贪心优化
-func jump(nums []int) int {
-    n:=len(nums)
-    f := make([]int, n)
-    f[0] = 0
-    for i := 1; i < n; i++ {
-        // 取第一个能跳到当前位置的点即可
-        // 因为跳跃次数的结果集是单调递增的，所以贪心思路是正确的
-        idx:=0
-        for idx<n&&idx+nums[idx]<i{
-            idx++
-        }
-        f[i]=f[idx]+1
+    for (int i = 0; i < n - 1; i++) {
+      farthest = max(farthest, i + nums[i]); // 更新能够到达的最远位置
+
+      if (end == i) { // 需要跳一步
+        jumps++;
+        end = farthest; // 更新当前能够到达的最远位置
+      }
     }
-    return f[n-1]
+
+    return jumps;
+  }
 }
 
 ```
+
 
 ### [palindrome-partitioning-ii](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
 
 > 给定一个字符串 _s_，将 _s_ 分割成一些子串，使每个子串都是回文串。
 > 返回符合要求的最少分割次数。
 
-```go
-func minCut(s string) int {
-	// state: f[i] "前i"个字符组成的子字符串需要最少几次cut(个数-1为索引)
-	// function: f[i] = MIN{f[j]+1}, j < i && [j+1 ~ i]这一段是一个回文串
-	// intialize: f[i] = i - 1 (f[0] = -1)
-	// answer: f[s.length()]
-	if len(s) == 0 || len(s) == 1 {
-		return 0
-	}
-	f := make([]int, len(s)+1)
-	f[0] = -1
-	f[1] = 0
-	for i := 1; i <= len(s); i++ {
-		f[i] = i - 1
-		for j := 0; j < i; j++ {
-			if isPalindrome(s, j, i-1) {
-				f[i] = min(f[i], f[j]+1)
-			}
-		}
-	}
-	return f[len(s)]
+```dart
+class Solution {
+  int minCut(String s) {
+    var n = s.length;
+
+    // dp[i]表示字符串s[i..n-1]的最小分割次数
+    var dp = List<int>.filled(n, 0);
+
+    // isPalindrome[i][j]表示s[i..j]是否为回文字符串
+    var isPalindrome = List<List<bool>>.generate(n, (_) => List<bool>.filled(n, false));
+
+    // 初始化dp数组，最多需要分割n-1次
+    for (var i = 0; i < n; i++) {
+      dp[i] = n - i - 1;
+    }
+
+    // 从右向左遍历，计算dp和isPalindrome数组
+    for (var i = n - 1; i >= 0; i--) {
+      for (var j = i; j < n; j++) {
+        if (s[i] == s[j] && (j - i <= 1 || isPalindrome[i + 1][j - 1])) {
+          isPalindrome[i][j] = true;
+
+          // 如果s[i..j]是回文字符串，计算dp[i]的值
+          if (j == n - 1) {
+            dp[i] = 0;
+          } else {
+            dp[i] = dp[i].compareTo(dp[j + 1] + 1) > 0 ? dp[j + 1] + 1 : dp[i];
+          }
+        }
+      }
+    }
+
+    return dp[0];
+  }
 }
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
-func isPalindrome(s string, i, j int) bool {
-	for i < j {
-		if s[i] != s[j] {
-			return false
-		}
-		i++
-		j--
-	}
-	return true
-}
+
 ```
 
 注意点
@@ -458,88 +374,66 @@ func isPalindrome(s string, i, j int) bool {
 > 给定一个无序的整数数组，找到其中最长上升子序列的长度。
 
 ```go
-func lengthOfLIS(nums []int) int {
-    // f[i] 表示从0开始到i结尾的最长序列长度
-    // f[i] = max(f[j])+1 ,a[j]<a[i]
-    // f[0...n-1] = 1
-    // max(f[0]...f[n-1])
-    if len(nums) == 0 || len(nums) == 1 {
-        return len(nums)
+class Solution {
+  int lengthOfLIS(List<int> nums) {
+    // 如果数组为空，则LIS长度为0
+    if (nums.isEmpty) {
+      return 0;
     }
-    f := make([]int, len(nums))
-    f[0] = 1
-    for i := 1; i < len(nums); i++ {
-        f[i] = 1
-        for j := 0; j < i; j++ {
-            if nums[j] < nums[i] {
-                f[i] = max(f[i], f[j]+1)
-            }
-        }
-    }
-    result := f[0]
-    for i := 1; i < len(nums); i++ {
-        result = max(result, f[i])
-    }
-    return result
 
-}
-func max(a, b int) int {
-    if a > b {
-        return a
+    // 定义一个数组dp，dp[i]表示以第i个数字为结尾的LIS长度
+    var dp = List<int>.filled(nums.length, 1);
+
+    // 定义LIS的最大长度变量
+    var maxLength = 1;
+
+    // 遍历数组，计算dp[i]的值
+    for (var i = 1; i < nums.length; i++) {
+      // 遍历i之前的数字，找到所有小于nums[i]的数字，并计算dp[i]的值
+      for (var j = 0; j < i; j++) {
+        if (nums[j] < nums[i]) {
+          dp[i] = dp[i].compareTo(dp[j] + 1) == 1 ? dp[i] : dp[j] + 1;
+        }
+      }
+
+      // 更新LIS的最大长度
+      maxLength = maxLength.compareTo(dp[i]) == 1 ? maxLength : dp[i];
     }
-    return b
+
+    return maxLength;
+  }
 }
+
 ```
 
 ### [word-break](https://leetcode-cn.com/problems/word-break/)
 
 > 给定一个**非空**字符串  *s*  和一个包含**非空**单词列表的字典  *wordDict*，判定  *s*  是否可以被空格拆分为一个或多个在字典中出现的单词。
 
-```go
-func wordBreak(s string, wordDict []string) bool {
-	// f[i] 表示前i个字符是否可以被切分
-	// f[i] = f[j] && s[j+1~i] in wordDict
-	// f[0] = true
-	// return f[len]
+```dart
+class Solution {
+  bool wordBreak(String s, List<String> wordDict) {
+    // 将单词列表转为 set 方便查找
+    var dict = wordDict.toSet();
 
-	if len(s) == 0 {
-		return true
-	}
-	f := make([]bool, len(s)+1)
-	f[0] = true
-	max,dict := maxLen(wordDict)
-	for i := 1; i <= len(s); i++ {
-		l := 0
-		if i - max > 0 {
-			l = i - max
-		}
-		for j := l; j < i; j++ {
-			if f[j] && inDict(s[j:i],dict) {
-				f[i] = true
-                break
-			}
-		}
-	}
-	return f[len(s)]
-}
+    // 定义一个数组用来记录 s 中前 i 个字符是否可以被单词拆分
+    var dp = List.filled(s.length + 1, false);
+    dp[0] = true; // 空字符串可以被任何单词拆分
 
+    // 遍历 s 的所有子串
+    for (var i = 1; i <= s.length; i++) {
+      for (var j = 0; j < i; j++) {
+        // 如果前 j 个字符可以被单词拆分，且 j 到 i 的子串在单词列表中出现过
+        // 那么前 i 个字符也可以被单词拆分
+        if (dp[j] && dict.contains(s.substring(j, i))) {
+          dp[i] = true;
+          break; // 如果已经可以被拆分了，就不用继续查找了
+        }
+      }
+    }
 
-
-func maxLen(wordDict []string) (int,map[string]bool) {
-    dict := make(map[string]bool)
-	max := 0
-	for _, v := range wordDict {
-		dict[v] = true
-		if len(v) > max {
-			max = len(v)
-		}
-	}
-	return max,dict
-}
-
-func inDict(s string,dict map[string]bool) bool {
-	_, ok := dict[s]
-	return ok
+    return dp[s.length];
+  }
 }
 
 ```
@@ -561,52 +455,31 @@ func inDict(s string,dict map[string]bool) bool {
 > 一个字符串的   子序列   是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
 > 例如，"ace" 是 "abcde" 的子序列，但 "aec" 不是 "abcde" 的子序列。两个字符串的「公共子序列」是这两个字符串所共同拥有的子序列。
 
-```go
-func longestCommonSubsequence(a string, b string) int {
-    // dp[i][j] a前i个和b前j个字符最长公共子序列
-    // dp[m+1][n+1]
-    //   ' a d c e
-    // ' 0 0 0 0 0
-    // a 0 1 1 1 1
-    // c 0 1 1 2 1
-    //
-    dp:=make([][]int,len(a)+1)
-    for i:=0;i<=len(a);i++ {
-        dp[i]=make([]int,len(b)+1)
-    }
-    for i:=1;i<=len(a);i++ {
-        for j:=1;j<=len(b);j++ {
-            // 相等取左上元素+1，否则取左或上的较大值
-            if a[i-1]==b[j-1] {
-                dp[i][j]=dp[i-1][j-1]+1
-            } else {
-                dp[i][j]=max(dp[i-1][j],dp[i][j-1])
-            }
+```dart
+class Solution {
+  int longestCommonSubsequence(String text1, String text2) {
+    var m = text1.length, n = text2.length;
+    var dp = List.generate( // 初始化一个二维列表
+      m + 1, // 行数为 m + 1
+      (i) => List.generate(n + 1, (j) => 0), // 列数为 n + 1，每个元素初始值为 0
+    );
+
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        if (text1[i - 1] == text2[j - 1]) { // 如果两个字符相同，则更新对角线元素的值
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+        } else { // 否则更新上方或左方元素的值中的较大值
+          dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
         }
+      }
     }
-    return dp[len(a)][len(b)]
+
+    return dp[m][n]; // 返回右下角元素的值，即最长公共子序列的长度
+  }
 }
-func max(a,b int)int {
-    if a>b{
-        return a
-    }
-    return b
-}
+
 ```
 
-注意点
-
-- go 切片初始化
-
-```go
-dp:=make([][]int,len(a)+1)
-for i:=0;i<=len(a);i++ {
-    dp[i]=make([]int,len(b)+1)
-}
-```
-
-- 从 1 开始遍历到最大长度
-- 索引需要减一
 
 ### [edit-distance](https://leetcode-cn.com/problems/edit-distance/)
 
@@ -618,38 +491,42 @@ for i:=0;i<=len(a);i++ {
 
 思路：和上题很类似，相等则不需要操作，否则取删除、插入、替换最小操作次数的值+1
 
-```go
-func minDistance(word1 string, word2 string) int {
-    // dp[i][j] 表示a字符串的前i个字符编辑为b字符串的前j个字符最少需要多少次操作
-    // dp[i][j] = OR(dp[i-1][j-1]，a[i]==b[j],min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1)
-    dp:=make([][]int,len(word1)+1)
-    for i:=0;i<len(dp);i++{
-        dp[i]=make([]int,len(word2)+1)
+```dart
+class Solution {
+  int minDistance(String word1, String word2) {
+    int m = word1.length;
+    int n = word2.length;
+
+    // 创建一个二维数组 dp 用于存储子问题的解
+    // dp[i][j] 表示将 word1[0..i-1] 转换为 word2[0..j-1] 的最少操作数
+    var dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+
+    // 初始化边界条件
+    for (var i = 1; i <= m; i++) {
+      dp[i][0] = i;
     }
-    for i:=0;i<len(dp);i++{
-        dp[i][0]=i
+    for (var j = 1; j <= n; j++) {
+      dp[0][j] = j;
     }
-    for j:=0;j<len(dp[0]);j++{
-        dp[0][j]=j
-    }
-    for i:=1;i<=len(word1);i++{
-        for j:=1;j<=len(word2);j++{
-            // 相等则不需要操作
-            if word1[i-1]==word2[j-1] {
-                dp[i][j]=dp[i-1][j-1]
-            }else{ // 否则取删除、插入、替换最小操作次数的值+1
-                dp[i][j]=min(min(dp[i-1][j],dp[i][j-1]),dp[i-1][j-1])+1
-            }
+
+    // 自底向上计算子问题的解
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        if (word1[i - 1] == word2[j - 1]) {
+          // 如果 word1[i-1] 和 word2[j-1] 相同，不需要操作
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          // 否则需要进行操作，取三种操作中的最小值
+          dp[i][j] = 1 + min(dp[i - 1][j - 1], min(dp[i - 1][j], dp[i][j - 1]));
         }
+      }
     }
-    return dp[len(word1)][len(word2)]
+
+    // 返回最终问题的解
+    return dp[m][n];
+  }
 }
-func min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
-}
+
 ```
 
 说明
@@ -665,35 +542,25 @@ func min(a,b int)int{
 思路：和其他 DP 不太一样，i 表示钱或者容量
 
 ```go
-func coinChange(coins []int, amount int) int {
-    // 状态 dp[i]表示金额为i时，组成的最小硬币个数
-    // 推导 dp[i]  = min(dp[i-1], dp[i-2], dp[i-5])+1, 前提 i-coins[j] > 0
-    // 初始化为最大值 dp[i]=amount+1
-    // 返回值 dp[n] or dp[n]>amount =>-1
-    dp:=make([]int,amount+1)
-    for i:=0;i<=amount;i++{
-        dp[i]=amount+1
-    }
-    dp[0]=0
-    for i:=1;i<=amount;i++{
-        for j:=0;j<len(coins);j++{
-            if  i-coins[j]>=0  {
-                dp[i]=min(dp[i],dp[i-coins[j]]+1)
-            }
-        }
-    }
-    if dp[amount] > amount {
-        return -1
-    }
-    return dp[amount]
+class Solution {
+  int coinChange(List<int> coins, int amount) {
+    var dp = List<int>.filled(amount + 1, amount + 1);
+    dp[0] = 0;
 
-}
-func min(a,b int)int{
-    if a>b{
-        return b
+    for (var i = 1; i <= amount; i++) {
+      for (var coin in coins) {
+        if (coin <= i) { // 如果硬币面值小于等于 i，说明可以使用该硬币
+          dp[i] = dp[i].compareTo(dp[i - coin] + 1) > 0 // 取当前状态和使用该硬币状态中较小的那个
+              ? dp[i - coin] + 1
+              : dp[i];
+        }
+      }
     }
-    return a
+
+    return dp[amount] > amount ? -1 : dp[amount];
+  }
 }
+
 ```
 
 注意
@@ -704,33 +571,32 @@ func min(a,b int)int{
 
 > 在 n 个物品中挑选若干物品装入背包，最多能装多满？假设背包的大小为 m，每个物品的大小为 A[i]
 
-```go
-func backPack (m int, A []int) int {
-    // write your code here
-    // f[i][j] 前i个物品，是否能装j
-    // f[i][j] =f[i-1][j] f[i-1][j-a[i] j>a[i]
-    // f[0][0]=true f[...][0]=true
-    // f[n][X]
-    f:=make([][]bool,len(A)+1)
-    for i:=0;i<=len(A);i++{
-        f[i]=make([]bool,m+1)
+```dart
+int backPack(int m, List<int> A) {
+  int n = A.length;
+  
+  // 初始化一个二维数组dp，用来记录当前物品放或不放时的背包容量和价值
+  List<List<int>> dp = List.generate(n + 1, (_) => List.filled(m + 1, 0));
+  
+  // 遍历每个物品
+  for (int i = 1; i <= n; i++) {
+    // 遍历每个背包容量
+    for (int j = 1; j <= m; j++) {
+      // 如果当前物品的大小大于背包容量j，则当前物品不能放入背包，取上一个物品的最优解
+      if (A[i - 1] > j) {
+        dp[i][j] = dp[i - 1][j];
+      }
+      // 如果当前物品的大小小于等于背包容量j，则可以考虑将当前物品放入背包
+      else {
+        // 取放入当前物品和不放入当前物品两种情况下的最大价值
+        dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - A[i - 1]] + A[i - 1]);
+      }
     }
-    f[0][0]=true
-    for i:=1;i<=len(A);i++{
-        for j:=0;j<=m;j++{
-            f[i][j]=f[i-1][j]
-            if j-A[i-1]>=0 && f[i-1][j-A[i-1]]{
-                f[i][j]=true
-            }
-        }
-    }
-    for i:=m;i>=0;i--{
-        if f[len(A)][i] {
-            return i
-        }
-    }
-    return 0
+  }
+
+  return dp[n][m];  // 返回n个物品放入容量为m的背包中所能得到的最大价值
 }
+
 
 ```
 
@@ -741,32 +607,25 @@ func backPack (m int, A []int) int {
 
 思路：f[i][j] 前 i 个物品，装入 j 背包 最大价值
 
-```go
-func backPackII (m int, A []int, V []int) int {
-    // write your code here
-    // f[i][j] 前i个物品，装入j背包 最大价值
-    // f[i][j] =max(f[i-1][j] ,f[i-1][j-A[i]]+V[i]) 是否加入A[i]物品
-    // f[0][0]=0 f[0][...]=0 f[...][0]=0
-    f:=make([][]int,len(A)+1)
-    for i:=0;i<len(A)+1;i++{
-        f[i]=make([]int,m+1)
+```dart
+int backPackII(int m, List<int> A, List<int> V) {
+  // 初始化二维数组dp
+  List<List<int>> dp = List.generate(A.length + 1, (_) => List.filled(m + 1, 0));
+  for (int i = 1; i <= A.length; i++) {
+    for (int j = 1; j <= m; j++) {
+      // 如果当前物品的体积大于背包容量，则不能放入
+      if (A[i - 1] > j) {
+        dp[i][j] = dp[i - 1][j];
+      }
+      // 否则，需要考虑放入或不放入该物品的情况
+      else {
+        dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - A[i - 1]] + V[i - 1]);
+      }
     }
-    for i:=1;i<=len(A);i++{
-        for j:=0;j<=m;j++{
-            f[i][j]=f[i-1][j]
-            if j-A[i-1] >= 0{
-                f[i][j]=max(f[i-1][j],f[i-1][j-A[i-1]]+V[i-1])
-            }
-        }
-    }
-    return f[len(A)][m]
+  }
+  return dp[A.length][m];
 }
-func max(a,b int)int{
-    if a>b{
-        return a
-    }
-    return b
-}
+
 ```
 
 ## 练习
