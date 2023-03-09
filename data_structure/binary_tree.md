@@ -184,19 +184,31 @@ int maxDepth(TreeNode? root){
 所以用-1 表示不平衡，>0 表示树高度（二义性：一个变量有两种含义）。
 
 ```dart
-bool isBalance(TreeNode? root){
-  if(root == null) {
-    return true;
-  }
-  return isBalance(root.left) && isBalance(root.right) && ((height(root.left) - height(root.right).abs()) <=1);
+bool isBalanced(TreeNode? root) {
+  return getHeight(root) != -1;
 }
-int height(TreeNode? root){
-  if(root == null){
+
+int getHeight(TreeNode? root) {
+  if (root == null) {
     return 0;
   }
-  int maxNumber = max( height(root.left) ,height(root.right)) + 1;
-  return maxNumber;
-} 
+
+  int leftHeight = getHeight(root.left);
+  if (leftHeight == -1) { // 左子树不平衡，直接返回 -1
+    return -1;
+  }
+
+  int rightHeight = getHeight(root.right);
+  if (rightHeight == -1) { // 右子树不平衡，直接返回 -1
+    return -1;
+  }
+
+  if ((leftHeight - rightHeight).abs() > 1) { // 左右子树高度差超过 1，不平衡
+    return -1;
+  }
+
+  return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1; // 返回节点高度
+}
 
 ```
 
