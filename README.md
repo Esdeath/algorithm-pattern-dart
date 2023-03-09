@@ -79,3 +79,4 @@ Github:[仓库地址](https://github.com/Esdeath/algorithm-pattern-dart)
 | ✅   | [chienmy](https://github.com/chienmy) | [algorithm-pattern-java(Java 实现)](https://github.com/chienmy/algorithm-pattern-java), [在线文档 Gitbook](https://chienmy.gitbook.io/algorithm-pattern-java/) |
 | ✅ | [ligecarryme](https://github.com/ligecarryme) | [algorithm-pattern-JavaScript(JS+TS实现)](https://github.com/ligecarryme/algorithm-pattern-JavaScript) |
 | ✅ | [greyireland](https://github.com/greyireland) | [algorithm-pattern-go(go实现)](https://greyireland.gitbook.io/algorithm-pattern/) |
+| ✅ | [Esdeath](https://github.com/Esdeath) | [algorithm-pattern-dart(dart实现)](https://github.com/Esdeath/algorithm-pattern-dart),[在线文档 Gitbook](https://ayaseeri.gitbook.io/algorithm-pattern-dart/) |
