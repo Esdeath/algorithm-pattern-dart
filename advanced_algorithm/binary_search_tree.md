@@ -22,26 +22,25 @@
  * }
  */
 class Solution {
-  int min = -1<<63;
-  bool isValid = true;
   bool isValidBST(TreeNode? root) {
-      dfs(root);
-      return isValid;
+    return validateBST(root, -1 << 63, 1 << 63 - 1);
   }
 
-  void dfs(TreeNode? root){
-      if(root == null){
-          return ;
-      }
-      dfs(root.left);
-      if(root.val > min){
-          min = root.val;
-      } else {
-          isValid = false;
-      }
-      dfs(root.right);
+  bool validateBST(TreeNode? node, int minVal, int maxVal) {
+    if (node == null) {
+      return true; // 空节点满足二叉搜索树定义，返回 true
+    }
+
+    if (node.val <= minVal || node.val >= maxVal) {
+      return false; // 当前节点值小于等于最小值或大于等于最大值，不满足二叉搜索树定义，返回 false
+    }
+
+    // 递归验证左子树和右子树
+    return validateBST(node.left, minVal, node.val) &&
+        validateBST(node.right, node.val, maxVal);
   }
 }
+
 ```
 
 [insert-into-a-binary-search-tree](https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/)

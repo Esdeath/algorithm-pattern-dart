@@ -33,21 +33,31 @@ backtrack(选择列表,路径):
 ```dart
 class Solution {
   List<List<int>> subsets(List<int> nums) {
-      List<List<int>> result = [];
-      List<int> temp = [];
-      backtrack(nums,0,temp,result);
-      return result;
+    List<List<int>> result = []; // 存储最终结果的列表
+    List<int> temp = []; // 存储当前子集的临时列表
+    backtrack(nums, 0, temp, result); // 调用回溯函数生成所有子集
+    return result; // 返回最终结果
   }
 
-  void backtrack(List<int> nums,int index,List<int> temp,List<List<int>> result){
-      result.add([...temp]);// result里面存储temp的拷贝
-      for(int i = index;i < nums.length;i++){
-          temp.add(nums[i]);
-          backtrack(nums,i+1,temp,result);
-          temp.removeLast();
-      }
+  void backtrack(
+    List<int> nums, // 原始数组
+    int index, // 当前遍历的索引
+    List<int> temp, // 当前子集的临时列表
+    List<List<int>> result, // 存储最终结果的列表
+  ) {
+    result.add([...temp]); // 将当前子集的拷贝添加到最终结果列表中
+
+    for (int i = index; i < nums.length; i++) {
+      temp.add(nums[i]); // 将当前元素添加到临时列表中
+
+      // 递归调用回溯函数，遍历剩余元素
+      backtrack(nums, i + 1, temp, result);
+
+      temp.removeLast(); // 移除最后一个元素，回溯到上一层状态
+    }
   }
 }
+
 ```
 
 ### [subsets-ii](https://leetcode-cn.com/problems/subsets-ii/)
@@ -57,27 +67,36 @@ class Solution {
 ```dart
 class Solution {
   List<List<int>> subsetsWithDup(List<int> nums) {
-      List<List<int>> result = [];
-      List<int> temp = [];
-      nums.sort();
-      backtrack(nums,0,temp,result);
-      return result;
+    List<List<int>> result = []; // 存储最终结果的列表
+    List<int> temp = []; // 存储当前子集的临时列表
+    nums.sort(); // 对原始数组进行排序，以便处理重复元素
+    backtrack(nums, 0, temp, result); // 调用回溯函数生成所有子集
+    return result; // 返回最终结果
   }
-	// nums 给定的集合
-	// pos 下次添加到集合中的元素位置索引
-	// list 临时结果集合(每次需要复制保存)
-	// result 最终结果
-  void backtrack(List<int> nums,int index,List<int> temp,List<List<int>> result){
-      result.add([...temp]);// result里面存储temp的拷贝
-	  	// 选择时需要剪枝、处理、撤销选择
-      for(int i = index;i < nums.length;i++){
-          if(i > 0 &&nums[i] == nums[i -1] && i != index) continue;
-          temp.add(nums[i]);
-          backtrack(nums,i+1,temp,result);
-          temp.removeLast();
-      }
+
+  void backtrack(
+    List<int> nums, // 给定的集合
+    int index, // 下次添加到集合中的元素位置索引
+    List<int> temp, // 临时结果集合(每次需要复制保存)
+    List<List<int>> result, // 最终结果
+  ) {
+    result.add([...temp]); // 将当前子集的拷贝添加到最终结果列表中
+
+    // 选择时需要剪枝、处理、撤销选择
+    for (int i = index; i < nums.length; i++) {
+      // 剪枝条件：跳过重复元素，但保留第一次出现的元素
+      if (i > 0 && nums[i] == nums[i - 1] && i != index) continue;
+
+      temp.add(nums[i]); // 将当前元素添加到临时列表中
+
+      // 递归调用回溯函数，遍历剩余元素
+      backtrack(nums, i + 1, temp, result);
+
+      temp.removeLast(); // 移除最后一个元素，回溯到上一层状态
+    }
   }
 }
+
 ```
 
 ### [permutations](https://leetcode-cn.com/problems/permutations/)
